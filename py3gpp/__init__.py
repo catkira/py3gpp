@@ -5,3 +5,5 @@ from .nrCarrierConfig import nrCarrierConfig
 from .nrResourceGrid import nrResourceGrid
 from .nrOFDMModulate import nrOFDMModulate
 from .nrOFDMDemodulate import nrOFDMDemodulate
+from .nrSSSIndices import nrSSSIndices
+from .nrExtractResources import nrExtractResources
