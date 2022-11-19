@@ -4,3 +4,4 @@ from .nrPBCHDMRS import nrPBCHDMRS
 from .nrCarrierConfig import nrCarrierConfig
 from .nrResourceGrid import nrResourceGrid
 from .nrOFDMModulate import nrOFDMModulate
+from .nrOFDMDemodulate import nrOFDMDemodulate

@@ -1,0 +1,56 @@
+import numpy as np
+
+# TODO: implement CyclicPrefixFraction
+def nrOFDMDemodulate(carrier = None, waveform = None, nrb = None, scs = None, initialNSlot = None,
+    CyclicPrefix = 'normal', Nfft = None, SampleRate = None, CarrierFrequency = 0, CyclicPrefixFraction = 0.5):
+    if waveform is None:
+        print("Error: no waveform given!")
+        return
+    if carrier is None:
+        if nrb == None:
+            print("Error: nrb is needed without carrierConfig!")
+            return
+        if scs == None:
+            print("Error: scs is needed without carrierConfig!")
+            return
+        if initialNSlot == None:
+            print("Error: initialNSlot is needed without carrierConfig!")
+            return
+    else:
+        nrb = carrier.NSizeGrid
+        scs = carrier.SubcarrierSpacing
+        initialNSlot = 0
+    if Nfft == None :
+        if SampleRate == None:
+            for i in range(20):
+                if 2**(i) * 0.85 >= nrb*12:
+                    Nfft = 2**i
+                    break
+            SampleRate =int(Nfft * scs * 1000)
+        else:
+            Nfft = int(SampleRate // scs // 1000)
+    mu = (scs // 15) - 1
+    if CyclicPrefix == 'normal':
+        N_cp1 = int((144+16) * 2**(-mu))
+        N_cp2 = int(144 * 2**(-mu))
+    else:
+        N_cp1 = int(512 * 2**(-mu))
+        N_cp2 = N_cp1    
+
+    idx = 0
+    slot = 0
+    grid = np.zeros((nrb*12, 0), 'complex')
+    while idx + Nfft < waveform.shape[0]:
+        if slot == 0 or slot == 7 * 2**(mu):
+            cp = N_cp1
+        else:
+            cp = N_cp2
+        idx += cp
+        slot = (slot + 1) % (7 * 2**(mu))
+        symbol_t = waveform[idx:][:Nfft]
+        symbol_f = np.fft.fftshift(np.fft.fft(symbol_t))[Nfft//2-nrb*12//2:Nfft//2+nrb*12//2] / np.sqrt(Nfft)
+        grid = np.concatenate((grid, np.expand_dims(symbol_f,1)), axis=1)
+        idx += Nfft
+    return grid
+
+    
