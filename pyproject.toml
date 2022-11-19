@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools ~= 58.0", "cython ~= 0.29.0"]
+
+[project]
+name = "py3gpp"
+version = "0.0.1"
+authors = [
+    {name = "Benjamin Menküc", benjamin@menkuec.de},
+]
+description = "functions for 5G NR signal processing"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+]
+dependencies = [
+    "numpy ~=1.21.0",
+]
