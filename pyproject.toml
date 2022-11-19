@@ -1,24 +1,29 @@
-[build-system]
-requires = ["setuptools ~= 58.0", "cython ~= 0.29.0"]
-
-[project]
-name = "py3gpp"
+[tool.poetry]
 version = "0.0.1"
 authors = [
-    {name = "Benjamin Menküc", benjamin@menkuec.de},
+    "Benjamin Menküc <benjamin@menkuec.de>",
 ]
+repository = "https://github.com/catkira/py3gpp"
 description = "functions for 5G NR signal processing"
+name = "py3gpp"
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
     "Development Status :: 3 - Alpha",
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: GNU Affero General Public License v3",
     "Natural Language :: English",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
 ]
-dependencies = [
-    "numpy ~=1.21.0",
+packages = [
+    { include = "py3gpp" },
 ]
+
+[tool.poetry.dependencies]
+numpy = "^1.21.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
