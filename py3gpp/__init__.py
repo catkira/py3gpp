@@ -9,3 +9,5 @@ from .nrSSSIndices import nrSSSIndices
 from .nrExtractResources import nrExtractResources
 from .nrPSSIndices import nrPSSIndices
 from .nrTimingEstimate import nrTimingEstimate
+from .nrPBCHDMRSIndices import nrPBCHDMRSIndices
+from .nrSetResources import nrSetResources
