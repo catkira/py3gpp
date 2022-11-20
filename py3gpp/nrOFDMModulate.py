@@ -2,26 +2,28 @@ import numpy as np
 from py3gpp import nrCarrierConfig
 
 # TODO: implement windowing
-def nrOFDMModulate(carrier = None, grid = None, scs = None, InitialNSlot = 0, CyclicPrefix = 'normal', Nfft = None, SampleRate = None, Windowing = None):
+def nrOFDMModulate(carrier = None, grid = None, scs = None, initialNSlot = 0, CyclicPrefix = 'normal', Nfft = None, SampleRate = None, Windowing = None):
     info = dict()
 
-    if carrier == None:
-        if grid == None:
+    if carrier is None:
+        if grid is None:
             print("Error: grid is needed when no carrierConfig is specified!")
             return
         carrier = nrCarrierConfig(NSizeGrid = grid.shape[0]//12)
 
-    if Nfft == None:
-        for i in range(20):
-            if 2**(i) * 0.85 >= grid.shape[0] :
-                Nfft = 2**i
-                break
-
     if scs == None:
-        scs = carrier.SubcarrierSpacing
+            scs = carrier.SubcarrierSpacing
 
-    if SampleRate == None:
-        SampleRate = Nfft * scs * 1000
+    if Nfft == None:
+        if SampleRate == None:
+            for i in range(20):
+                if 2**(i) * 0.85 >= grid.shape[0] :
+                    Nfft = 2**i
+                    break
+            SampleRate = int(Nfft * scs * 1000)
+        else:
+            Nfft = int(SampleRate // scs // 1000)
+    
     mu = (carrier.SubcarrierSpacing // 15) - 1
 
     info["Nfft"] = Nfft
@@ -49,7 +51,7 @@ def nrOFDMModulate(carrier = None, grid = None, scs = None, InitialNSlot = 0, Cy
         if nFill < 0:
             full_slot_grid = grid[:nFill][:nFill]
         else:
-            full_slot_grid = np.concatenate([np.zeros(nFill), grid[:,0], np.zeros(nFill)])
+            full_slot_grid = np.concatenate([np.zeros(nFill), grid[:,slot_num], np.zeros(nFill)])
         symbol_waveform = np.fft.ifft(np.fft.fftshift(full_slot_grid))
         symbol_waveform_cp = np.append(symbol_waveform[-N_cp:], symbol_waveform)
         waveform = np.append(waveform, symbol_waveform_cp)

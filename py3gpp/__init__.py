@@ -8,3 +8,4 @@ from .nrOFDMDemodulate import nrOFDMDemodulate
 from .nrSSSIndices import nrSSSIndices
 from .nrExtractResources import nrExtractResources
 from .nrPSSIndices import nrPSSIndices
+from .nrTimingEstimate import nrTimingEstimate
