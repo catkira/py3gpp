@@ -21,6 +21,12 @@ def nrChannelEstimate(rxGrid = None, refInd = None, refSym = None, refGrid = Non
     #interp_real = scipy.interpolate.interp2d(normXYZ[:,0].real, normXYZ[:,1].real, np.real(normXYZ[:,2]), kind='linear')
     #interp_imag = scipy.interpolate.interp2d(normXYZ[:,0].real, normXYZ[:,1].real, np.imag(normXYZ[:,2]), kind='linear')
     #H = interp_real(np.arange(K), np.arange(N)).reshape(refGrid.shape) + 1j*interp_imag(np.arange(K), np.arange(N)).reshape(refGrid.shape)
+    
+    # use RBFInterpolator because interp2d and griddata cannot extrapolate
     H = scipy.interpolate.griddata((normXYZ[:,0].real, normXYZ[:,1].real), 
         normXYZ[:,2], (C.ravel(order='F'), R.ravel(order='F'))).reshape(refGrid.shape, order='F')
+
+    #H = scipy.interpolate.RBFInterpolator(np.array((normXYZ[:,0].real, normXYZ[:,1].real)).T, normXYZ[:,2])
+    interpolator = scipy.interpolate.RBFInterpolator(np.array((normXYZ[:,0].real, normXYZ[:,1].real)).T, normXYZ[:,2])
+    H = interpolator(np.vstack((R.ravel(order='F'), C.ravel(order='F'))).T).reshape(refGrid.shape, order='F')
     return H

@@ -12,3 +12,4 @@ from .nrTimingEstimate import nrTimingEstimate
 from .nrPBCHDMRSIndices import nrPBCHDMRSIndices
 from .nrSetResources import nrSetResources
 from .nrChannelEstimate import nrChannelEstimate
+from .nrOFDMInfo import nrOFDMInfo

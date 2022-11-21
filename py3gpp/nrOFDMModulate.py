@@ -1,5 +1,6 @@
 import numpy as np
 from py3gpp import nrCarrierConfig
+from py3gpp.nrOFDMInfo import nrOFDMInfo
 
 # TODO: implement windowing
 def nrOFDMModulate(carrier = None, grid = None, scs = None, initialNSlot = 0, CyclicPrefix = 'normal', Nfft = None, SampleRate = None, Windowing = None):
@@ -9,17 +10,17 @@ def nrOFDMModulate(carrier = None, grid = None, scs = None, initialNSlot = 0, Cy
         if grid is None:
             print("Error: grid is needed when no carrierConfig is specified!")
             return
-        carrier = nrCarrierConfig(NSizeGrid = grid.shape[0]//12)
+        NSizeGrid = grid.shape[0]//12            
+        carrier = nrCarrierConfig(NSizeGrid = NSizeGrid)
+    else:
+        NSizeGrid = carrier.NSizeGrid          
 
     if scs == None:
-            scs = carrier.SubcarrierSpacing
+            scs = carrier.SubcarrierSpacing        
 
     if Nfft == None:
         if SampleRate == None:
-            for i in range(20):
-                if 2**(i) * 0.85 >= grid.shape[0] :
-                    Nfft = 2**i
-                    break
+            Nfft = nrOFDMInfo(nrb = NSizeGrid, scs = scs)['Nfft']
             SampleRate = int(Nfft * scs * 1000)
         else:
             Nfft = int(SampleRate // scs // 1000)
@@ -35,11 +36,11 @@ def nrOFDMModulate(carrier = None, grid = None, scs = None, initialNSlot = 0, Cy
     nSlots = grid.shape[1]
     waveform = np.empty(0, 'complex')
     if CyclicPrefix == 'normal':
-        N_cp1 = int((144+16) * 2**(-mu))
-        N_cp2 = int(144 * 2**(-mu))
+        N_cp1 = int(((144) * 2**(-mu) + 16) * (SampleRate/30720000))
+        N_cp2 = int((144 * 2**(-mu)) * (SampleRate/30720000))
     else:
-        N_cp1 = int(512 * 2**(-mu))
-        N_cp2 = N_cp1
+        N_cp1 = int((512 * 2**(-mu)) * (SampleRate/30720000))
+        N_cp2 = N_cp1 
 
     for slot_num in range(nSlots):
         if slot_num == 0 or slot_num == 7 * 2**(mu):
@@ -49,7 +50,7 @@ def nrOFDMModulate(carrier = None, grid = None, scs = None, initialNSlot = 0, Cy
         symbol_len = Nfft + N_cp
         nFill = (Nfft - grid.shape[0])//2
         if nFill < 0:
-            full_slot_grid = grid[:nFill][:nFill]
+            full_slot_grid = grid[np.abs(nFill):, slot_num][:nFill]
         else:
             full_slot_grid = np.concatenate([np.zeros(nFill), grid[:,slot_num], np.zeros(nFill)])
         symbol_waveform = np.fft.ifft(np.fft.fftshift(full_slot_grid))

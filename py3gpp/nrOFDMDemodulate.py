@@ -22,20 +22,17 @@ def nrOFDMDemodulate(carrier = None, waveform = None, nrb = None, scs = None, in
         initialNSlot = 0
     if Nfft == None :
         if SampleRate == None:
-            for i in range(20):
-                if 2**(i) * 0.85 >= nrb*12:
-                    Nfft = 2**i
-                    break
+            Nfft = nrOFDMInfo(nrb = NSizeGrid, scs = scs)['Nfft']
             SampleRate =int(Nfft * scs * 1000)
         else:
             Nfft = int(SampleRate // scs // 1000)
     mu = (scs // 15) - 1
     if CyclicPrefix == 'normal':
-        N_cp1 = int((144+16) * 2**(-mu))
-        N_cp2 = int(144 * 2**(-mu))
+        N_cp1 = int(((144) * 2**(-mu) + 16) * (SampleRate/30720000))
+        N_cp2 = int((144 * 2**(-mu)) * (SampleRate/30720000))
     else:
-        N_cp1 = int(512 * 2**(-mu))
-        N_cp2 = N_cp1    
+        N_cp1 = int((512 * 2**(-mu)) * (SampleRate/30720000))
+        N_cp2 = N_cp1 
 
     idx = 0
     slot = 0
@@ -48,7 +45,7 @@ def nrOFDMDemodulate(carrier = None, waveform = None, nrb = None, scs = None, in
         idx += cp
         slot = (slot + 1) % (7 * 2**(mu))
         symbol_t = waveform[idx:][:Nfft]
-        symbol_f = np.fft.fftshift(np.fft.fft(symbol_t))[Nfft//2-nrb*12//2:Nfft//2+nrb*12//2] / np.sqrt(Nfft)
+        symbol_f = np.fft.fftshift(np.fft.fft(symbol_t))[Nfft//2-nrb*12//2:Nfft//2+nrb*12//2]
         grid = np.concatenate((grid, np.expand_dims(symbol_f,1)), axis=1)
         idx += Nfft
     return grid
