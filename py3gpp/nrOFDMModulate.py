@@ -25,7 +25,7 @@ def nrOFDMModulate(carrier = None, grid = None, scs = None, initialNSlot = 0, Cy
         else:
             Nfft = int(SampleRate // scs // 1000)
     
-    mu = (carrier.SubcarrierSpacing // 15) - 1
+    mu = (scs // 15) - 1
 
     info["Nfft"] = Nfft
     info["SampleRate"] = SampleRate
@@ -36,7 +36,7 @@ def nrOFDMModulate(carrier = None, grid = None, scs = None, initialNSlot = 0, Cy
     nSlots = grid.shape[1]
     waveform = np.empty(0, 'complex')
     if CyclicPrefix == 'normal':
-        N_cp1 = int(((144) * 2**(-mu) + 16) * (SampleRate/30720000))
+        N_cp1 = int(((144+16) * 2**(-mu)) * (SampleRate/30720000))
         N_cp2 = int((144 * 2**(-mu)) * (SampleRate/30720000))
     else:
         N_cp1 = int((512 * 2**(-mu)) * (SampleRate/30720000))
