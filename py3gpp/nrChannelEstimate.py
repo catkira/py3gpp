@@ -28,5 +28,5 @@ def nrChannelEstimate(rxGrid = None, refInd = None, refSym = None, refGrid = Non
 
     #H = scipy.interpolate.RBFInterpolator(np.array((normXYZ[:,0].real, normXYZ[:,1].real)).T, normXYZ[:,2])
     interpolator = scipy.interpolate.RBFInterpolator(np.array((normXYZ[:,0].real, normXYZ[:,1].real)).T, normXYZ[:,2])
-    H = interpolator(np.vstack((R.ravel(order='F'), C.ravel(order='F'))).T).reshape(refGrid.shape, order='F')
+    H = interpolator(np.vstack((C.ravel(order='F'), R.ravel(order='F'))).T).reshape(refGrid.shape, order='F')
     return H

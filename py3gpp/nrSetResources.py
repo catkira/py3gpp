@@ -9,5 +9,5 @@ def nrSetResources(ind, grid, vals):
         if len(idx) != 0:
             idx_start = np.min(idx)
             idx_end = np.max(idx)
-            grid[ind[idx_start:idx_end] - i*nSymbols, i] = vals[idx_start:idx_end]
+            grid[ind[idx_start:idx_end+1] - i*nSymbols, i] = vals[idx_start:idx_end+1]
     return vals
