@@ -15,3 +15,4 @@ from .nrChannelEstimate import nrChannelEstimate
 from .nrOFDMInfo import nrOFDMInfo
 from .nrSymbolDemodulate import nrSymbolDemodulate
 from .nrPBCHIndices import nrPBCHIndices
+from .nrPBCHPRBS import nrPBCHPRBS
