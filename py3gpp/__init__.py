@@ -17,3 +17,5 @@ from .nrSymbolDemodulate import nrSymbolDemodulate
 from .nrPBCHIndices import nrPBCHIndices
 from .nrPBCHPRBS import nrPBCHPRBS
 from .nrEqualizeMMSE import nrEqualizeMMSE
+from .nrRateRecoverPolar import nrRateRecoverPolar
+from .nrPolarDecode import nrPolarDecode
