@@ -32,9 +32,10 @@ def nrChannelEstimate(rxGrid = None, refInd = None, refSym = None, refGrid = Non
             if len(idx) > 0:
                 sym_idx = refInd[idx] - col*K
                 H[:,col] = np.interp(np.arange(K), sym_idx, rxSym[idx]/refSym[idx])
+
         # estimate noise variance
-        diff = refSym - rxGrid.ravel(order='F')[refInd]
-        nVar = np.sqrt(np.linalg.norm(diff - np.mean(diff), 2))
+        mean = np.mean((np.abs(H[:,1]), np.abs(H[:,3])), axis=0)
+        nVar = np.mean(np.abs(np.abs(H[:,1]) - mean))
 
     elif False:
         H = scipy.interpolate.griddata((normXYZ[:,0].real, normXYZ[:,1].real), 
@@ -42,6 +43,5 @@ def nrChannelEstimate(rxGrid = None, refInd = None, refSym = None, refGrid = Non
     elif False:    
         # use RBFInterpolator because interp2d and griddata cannot extrapolate
         interpolator = scipy.interpolate.RBFInterpolator(np.array((normXYZ[:,0].real, normXYZ[:,1].real)).T, normXYZ[:,2])
-        H = interpolator(np.vstack((C.ravel(order='F'), R.ravel(order='F'))).T).reshape(refGrid.shape, order='F')
-        
+        H = interpolator(np.vstack((C.ravel(order='F'), R.ravel(order='F'))).T).reshape(refGrid.shape, order='F')     
     return H, nVar
