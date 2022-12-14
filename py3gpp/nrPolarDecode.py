@@ -1,5 +1,9 @@
 import numpy as np
 
+#frozen_pos = np.genfromtxt('py3gpp/5g_frozen_positions.csv')
+                       
+
+
 # rec: Rate-recovered input, LLRs, length must be power of two
 # K: length of information block in bits, includes CRC
 # E: rate-matched output length in bits
