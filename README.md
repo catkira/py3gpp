@@ -5,3 +5,6 @@ This python package aims to replace the Matlab 5G Toolbox in Python. The call sy
 'python3 -m pip install py3gpp'
 or
 clone this repo and then do 'python3 -m pip install -e .'
+
+# Getting started
+run 'examples/test_py3gpp.ipynb'
