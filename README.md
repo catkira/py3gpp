@@ -8,3 +8,6 @@ clone this repo and then do 'python3 -m pip install -e .'
 
 # Getting started
 run 'examples/test_py3gpp.ipynb'
+
+# Documentation
+See Matlab documentation of equivalent function
