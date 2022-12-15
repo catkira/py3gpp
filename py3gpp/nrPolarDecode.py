@@ -122,24 +122,24 @@ def interleave(K):
 # very simple successive cancellation decoder
 def Polar_SC_decoder(N, frozen_pos, r):
     n = np.log2(N).astype('int')
-    L = np.zeros((n+1, N))
-    ucap = np.zeros((n+1, N))
+    L = np.zeros((n + 1, N))
+    ucap = np.zeros((n + 1, N))
     ns = np.zeros(2*N-1, 'int')
     L[0,:] = r
     node = depth = done = 0
     while done == 0:
         if depth == n:
             ucap[n, node] = 0 if (L[n, node] >= 0 or node in frozen_pos) else 1
-            if node == N-1:
+            if node == N - 1:
                 done = 1
             else:
                 node = node//2 # go to parent
                 depth -= 1
         else:
             npos = int(2**depth - 1 + node)
-            temp = 2**(n-depth)
+            temp = 2**(n - depth)
             ctemp = temp//2
-            Ln = L[depth, temp*node:temp*(node+1)] # incoming beliefs
+            Ln = L[depth, temp*node:temp*(node + 1)] # incoming beliefs
             a = Ln[:temp//2]
             b = Ln[temp//2:]
             lnode = 2*node          # left node
@@ -147,16 +147,16 @@ def Polar_SC_decoder(N, frozen_pos, r):
             if ns[npos] == 0:
                 node = lnode # go to left node
                 depth += 1
-                L[depth, ctemp*node:ctemp*(node+1)] = (1-2*(a<0))*(1-2*(b<0)) * np.min((np.abs(a), np.abs(b)))
+                L[depth, ctemp*node:ctemp*(node+1)] = (1 - 2*(a < 0))*(1 - 2*(b < 0))*np.min((np.abs(a), np.abs(b)))
             elif ns[npos] == 1:
-                ucapn = ucap[depth+1, ctemp*lnode:ctemp*(lnode+1)] # incoming decisions from left child
+                ucapn = ucap[depth + 1, ctemp*lnode:ctemp*(lnode+1)] # incoming decisions from left child
                 node = rnode # go to right node
                 depth += 1
-                L[depth, ctemp*node:ctemp*(node+1)] = b + (1-2*ucapn)*a
+                L[depth, ctemp*node:ctemp*(node + 1)] = b + (1 - 2*ucapn)*a
             else:
-                ucapl = ucap[depth+1, ctemp*lnode:ctemp*(lnode+1)] 
-                ucapr = ucap[depth+1, ctemp*rnode:ctemp*(rnode+1)]
-                ucap[depth, temp*node:temp*(node+1)] = np.append(np.mod(ucapl + ucapr, 2), ucapr) # combine
+                ucapl = ucap[depth + 1, ctemp*lnode:ctemp*(lnode + 1)] 
+                ucapr = ucap[depth + 1, ctemp*rnode:ctemp*(rnode + 1)]
+                ucap[depth, temp*node:temp*(node + 1)] = np.append(np.mod(ucapl + ucapr, 2), ucapr) # combine
                 node = node//2 # go to parent node
                 depth -= 1
             ns[npos] += 1
