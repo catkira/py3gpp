@@ -1,6 +1,5 @@
 import numpy as np
 
-
 def subblock_interleaving(u):
     N = u.shape[-1]
     assert np.mod(N,32)==0, \
@@ -18,14 +17,17 @@ def subblock_interleaving(u):
 
     return y                        
 
-
-def nrRateRecoverPolar(llr, K, N, ibil=False):
+# nrRateRecoverPolar() in Matlab discards all repeated llr values,
+# this is not optimal but we make this function behave the same by default
+# optimal behaviour can be switched on by setting discardRepetition to False
+def nrRateRecoverPolar(llr, K, N, ibil=False, discardRepetition=True):
     E = llr.shape[0]
     if N <= E:
         # undo repetition
         y = llr[:N]
-        #for k in range(N, E):
-        #    y[k%N] += llr[k]
+        if discardRepetition == False:
+            for k in range(N, E):
+                y[k%N] += llr[k]
     else:
         # TODO: implement shortening und puncturing
         print("Error!")
