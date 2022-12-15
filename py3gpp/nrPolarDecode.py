@@ -119,69 +119,56 @@ def interleave(K):
             k += 1
     return p
 
+# very simple successive cancellation decoder
 def Polar_SC_decoder(N, frozen_pos, r):
     n = np.log2(N).astype('int')
     L = np.zeros((n+1, N))
     ucap = np.zeros((n+1, N))
     ns = np.zeros(2*N-1, 'int')
-
     L[0,:] = r
-
-    node = 0
-    depth = 0
-    done = 0
+    node = depth = done = 0
     while done == 0:
         if depth == n:
             if node in frozen_pos:
                 ucap[n, node] = 0
             else:
-                if L[n, node] >= 0:
-                    ucap[n, node] = 0
-                else:
-                    ucap[n, node] = 1
+                ucap[n, node] = 0 if L[n, node] >= 0 else 1
             if node == N-1:
                 done = 1
             else:
-                node = int(node/2)
+                node = int(node/2) # go to parent
                 depth -= 1
         else:
             npos = int(2**depth - 1 + node)
+            temp = 2**(n-depth)
+            Ln = L[depth, temp*node:temp*(node+1)] # incoming beliefs
+            a = Ln[:int(temp/2)]
+            b = Ln[int(temp/2):]
             if ns[npos] == 0: # step L and go to left child
-                temp = 2**(n-depth)
-                Ln = L[depth, temp*node:temp*(node+1)] # incoming beliefs
-                # split beliefs into 2
-                a = Ln[:int(temp/2)]
-                b = Ln[int(temp/2):]
-                node = node*2
+                node = 2*node # go to left child
                 depth += 1
                 temp = int(temp/2)
                 L[depth, temp*node:temp*(node+1)] = (1-2*(a<0))*(1-2*(b<0)) * np.min((np.abs(a), np.abs(b)))
                 ns[npos] = 1
             elif ns[npos] == 1: # step R and go to right child
-                temp = 2**(n-depth)
-                Ln = L[depth, temp*node:temp*(node+1)] # incoming beliefs
                 lnode = 2*node
                 ldepth = depth+1
                 ltemp = int(temp/2)
                 ucapn = ucap[ldepth, ltemp*lnode:ltemp*(lnode+1)] # incoming decisions from left child
-                # split beliefs into 2
-                a = Ln[:int(temp/2)]
-                b = Ln[int(temp/2):]
-                node = node*2 + 1
+                node = node*2 + 1 # go to right child
                 depth += 1
                 temp = int(temp/2)
                 L[depth, temp*node:temp*(node+1)] = b + (1-2*ucapn)*a
                 ns[npos] = 2
             else: # step U and go to parent
-                temp = 2**(n-depth)
-                lnode = 2*node
-                rnode = 2*node + 1
+                lnode = 2*node          # left child
+                rnode = 2*node + 1      # right child
                 cdepth = depth+1
                 ctemp = int(temp/2)
                 ucapl = ucap[cdepth, ctemp*lnode:ctemp*(lnode+1)] 
                 ucapr = ucap[cdepth, ctemp*rnode:ctemp*(rnode+1)]
                 ucap[depth, temp*node:temp*(node+1)] = np.append(np.mod(ucapl + ucapr, 2), ucapr) # combine
-                node = int(node/2)
+                node = int(node/2) # go to parent
                 depth -= 1
     return ucap.astype('int')[n, :]    
 
