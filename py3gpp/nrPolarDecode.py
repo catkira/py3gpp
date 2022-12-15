@@ -129,47 +129,37 @@ def Polar_SC_decoder(N, frozen_pos, r):
     node = depth = done = 0
     while done == 0:
         if depth == n:
-            if node in frozen_pos:
-                ucap[n, node] = 0
-            else:
-                ucap[n, node] = 0 if L[n, node] >= 0 else 1
+            ucap[n, node] = 0 if (L[n, node] >= 0 or node in frozen_pos) else 1
             if node == N-1:
                 done = 1
             else:
-                node = int(node/2) # go to parent
+                node = node//2 # go to parent
                 depth -= 1
         else:
             npos = int(2**depth - 1 + node)
             temp = 2**(n-depth)
+            ctemp = temp//2
             Ln = L[depth, temp*node:temp*(node+1)] # incoming beliefs
-            a = Ln[:int(temp/2)]
-            b = Ln[int(temp/2):]
-            if ns[npos] == 0: # step L and go to left child
-                node = 2*node # go to left child
+            a = Ln[:temp//2]
+            b = Ln[temp//2:]
+            lnode = 2*node          # left node
+            rnode = 2*node + 1      # right node
+            if ns[npos] == 0:
+                node = lnode # go to left node
                 depth += 1
-                temp = int(temp/2)
-                L[depth, temp*node:temp*(node+1)] = (1-2*(a<0))*(1-2*(b<0)) * np.min((np.abs(a), np.abs(b)))
-                ns[npos] = 1
-            elif ns[npos] == 1: # step R and go to right child
-                lnode = 2*node
-                ldepth = depth+1
-                ltemp = int(temp/2)
-                ucapn = ucap[ldepth, ltemp*lnode:ltemp*(lnode+1)] # incoming decisions from left child
-                node = node*2 + 1 # go to right child
+                L[depth, ctemp*node:ctemp*(node+1)] = (1-2*(a<0))*(1-2*(b<0)) * np.min((np.abs(a), np.abs(b)))
+            elif ns[npos] == 1:
+                ucapn = ucap[depth+1, ctemp*lnode:ctemp*(lnode+1)] # incoming decisions from left child
+                node = rnode # go to right node
                 depth += 1
-                temp = int(temp/2)
-                L[depth, temp*node:temp*(node+1)] = b + (1-2*ucapn)*a
-                ns[npos] = 2
-            else: # step U and go to parent
-                lnode = 2*node          # left child
-                rnode = 2*node + 1      # right child
-                cdepth = depth+1
-                ctemp = int(temp/2)
-                ucapl = ucap[cdepth, ctemp*lnode:ctemp*(lnode+1)] 
-                ucapr = ucap[cdepth, ctemp*rnode:ctemp*(rnode+1)]
+                L[depth, ctemp*node:ctemp*(node+1)] = b + (1-2*ucapn)*a
+            else:
+                ucapl = ucap[depth+1, ctemp*lnode:ctemp*(lnode+1)] 
+                ucapr = ucap[depth+1, ctemp*rnode:ctemp*(rnode+1)]
                 ucap[depth, temp*node:temp*(node+1)] = np.append(np.mod(ucapl + ucapr, 2), ucapr) # combine
-                node = int(node/2) # go to parent
+                node = node//2 # go to parent node
                 depth -= 1
+            ns[npos] += 1
     return ucap.astype('int')[n, :]    
 
 # rec: Rate-recovered input, LLRs, length must be power of two
