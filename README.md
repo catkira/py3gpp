@@ -1,3 +1,4 @@
+[![Python package](https://github.com/catkira/py3gpp/actions/workflows/python-package.yml/badge.svg)](https://github.com/catkira/py3gpp/actions/workflows/python-package.yml)
 [![PyPI version](https://badge.fury.io/py/py3gpp.svg)](https://badge.fury.io/py/py3gpp)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/py3gpp)
 
