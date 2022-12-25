@@ -24,7 +24,7 @@ def nrRateRecoverPolar(llr, K, N, ibil=False, discardRepetition=True):
     E = llr.shape[0]
     if N <= E:
         # undo repetition
-        y = llr[:N]
+        y = np.copy(llr[:N])
         if discardRepetition == False:
             for k in range(N, E):
                 y[k%N] += llr[k]
