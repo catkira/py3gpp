@@ -1,4 +1,5 @@
 pylint
 anybadge
+pytest
 numpy
 scipy
