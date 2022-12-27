@@ -1,4 +1,5 @@
 [![Python package](https://github.com/catkira/py3gpp/actions/workflows/python-package.yml/badge.svg)](https://github.com/catkira/py3gpp/actions/workflows/python-package.yml)
+[![Pylint](https://catkira.github.io/py3gpp/pylint.svg)](https://github.com/catkira/py3gpp/actions/workflows/python-package.yml)
 [![PyPI version](https://badge.fury.io/py/py3gpp.svg)](https://badge.fury.io/py/py3gpp)
 [![Downloads](https://pepy.tech/badge/py3gpp)](https://pepy.tech/project/py3gpp)
 
