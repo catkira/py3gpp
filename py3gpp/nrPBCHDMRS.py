@@ -5,7 +5,7 @@ from .helper import _calc_gold
 def nrPBCHDMRS(ncellid, ibar_SSB):
     # ibar_SSB is a 3 bit value
     c_init = 2**11 * (ibar_SSB + 1) * (ncellid // 4 + 1) + 2**6 * (ibar_SSB + 1) + (ncellid % 4)
-    c = _calc_gold(c_init, 144)
+    c = _calc_gold(c_init, 2*144 + 1)
 
     r = np.empty(144, "complex")
     for m in range(len(r)):
