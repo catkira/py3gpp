@@ -1,33 +1,16 @@
 import numpy as np
-
-
-def _calc_m_seq_0():
-    n = 127
-    x = np.zeros(n, "int32")  # m-sequence
-    x[0:7] = np.array([1, 0, 0, 0, 0, 0, 0])
-    for i in np.arange(0, n - 7):
-        x[i + 7] = (x[i + 4] + x[i]) % 2
-    return x
-
-
-def _calc_m_seq_1():
-    n = 127
-    x = np.zeros(n, "int32")  # m-sequence
-    x[0:7] = np.array([1, 0, 0, 0, 0, 0, 0])
-    for i in np.arange(0, n - 7):
-        x[i + 7] = (x[i + 1] + x[i]) % 2
-    return x
-
+from py3gpp.helper import _calc_m_seq
 
 def _gold(N_id_1, N_id_2):
-    n = 127
-    x_0 = _calc_m_seq_0()
-    x_1 = _calc_m_seq_1()
-    d_SSS = np.zeros(n, "int32")
+    N = 7
+    c = [1, 0, 0, 0, 0, 0, 0]
+    taps_0 = [0, 4]
+    taps_1 = [0, 1]
+    mseq_0 = _calc_m_seq(N, c, taps_0)
+    mseq_1 = _calc_m_seq(N, c, taps_1)
     m_0 = 15 * int((N_id_1 / 112)) + 5 * N_id_2
     m_1 = N_id_1 % 112
-    for n in np.arange(0, 127):
-        d_SSS[n] = (1 - 2 * x_0[(n + m_0) % 127]) * (1 - 2 * x_1[(n + m_1) % 127])
+    d_SSS = (1 - 2 * np.roll(mseq_0, -m_0)) * (1 - 2 * np.roll(mseq_1, -m_1))
     return d_SSS
 
 

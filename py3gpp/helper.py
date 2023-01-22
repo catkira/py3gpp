@@ -18,3 +18,12 @@ def _calc_gold(c_init, length):
     for n in range(len(c)):
         c[n] = (x1[n+Nc] + x2[n+Nc])%2
     return c
+
+def _calc_m_seq(N, c, taps):
+    n = 2**N - 1
+    m = np.zeros(n, "int32")  # m-sequence
+    assert len(c) == N, "c has wrong length"
+    m[:N] = c
+    for i in np.arange(0, n - N):
+        m[i + N] = np.sum(np.take(m, i + taps)) % 2
+    return m
