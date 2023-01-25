@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pylint anybadge
+          pip install -r requirements.txt
       - name: Lint with pylint
         run: |
           pylint --exit-zero py3gpp/*.py | tee pylint.txt
@@ -56,6 +56,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install build
+          python3 -m build
+          pip install -e .          
       - name: Test with pytest
         run: |
           pytest py3gpp/*
