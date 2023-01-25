@@ -7,5 +7,5 @@ def nrPSS(ncellid):
     c = [0, 1, 1, 0, 1, 1, 1]
     taps = [0, 4]
     m = _calc_m_seq(N, c, taps)
-    d_PSS = np.roll(m, -43*ncellid)
+    d_PSS = 1 - 2 * np.roll(m, -43*ncellid)
     return d_PSS
