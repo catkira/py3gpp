@@ -53,10 +53,13 @@ def nrOFDMDemodulate(
             cp = N_cp1
         else:
             cp = N_cp2
-        idx += cp
         slot = (slot + 1) % (7 * 2 ** (mu))
+        cp_advance = int(CyclicPrefixFraction * cp)
+        idx += cp_advance
         symbol_t = waveform[idx:][:Nfft]
-        symbol_f = np.fft.fftshift(np.fft.fft(symbol_t))[Nfft // 2 - nrb * 12 // 2 : Nfft // 2 + nrb * 12 // 2]
+        symbol_f = np.fft.fftshift(np.fft.fft(symbol_t))
+        symbol_f *= np.exp(1j*2*np.pi*(cp - cp_advance)/Nfft*np.arange(len(symbol_f)))
+        symbol_f = symbol_f[Nfft // 2 - nrb * 12 // 2 : Nfft // 2 + nrb * 12 // 2]
         grid = np.concatenate((grid, np.expand_dims(symbol_f, 1)), axis=1)
-        idx += Nfft
+        idx += Nfft + (cp - cp_advance)
     return grid
