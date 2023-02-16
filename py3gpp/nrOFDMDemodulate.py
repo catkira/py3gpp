@@ -58,7 +58,10 @@ def nrOFDMDemodulate(
         idx += cp_advance
         symbol_t = waveform[idx:][:Nfft]
         symbol_f = np.fft.fftshift(np.fft.fft(symbol_t))
+
         symbol_f *= np.exp(1j*2*np.pi*(cp - cp_advance)/Nfft*np.arange(len(symbol_f)))
+        symbol_f *= np.exp(1j*np.pi*(cp - cp_advance))
+
         symbol_f = symbol_f[Nfft // 2 - nrb * 12 // 2 : Nfft // 2 + nrb * 12 // 2]
         grid = np.concatenate((grid, np.expand_dims(symbol_f, 1)), axis=1)
         idx += Nfft + (cp - cp_advance)
