@@ -172,7 +172,7 @@ def Polar_SC_decoder(N, frozen_pos, r):
                 node = lnode  # go to left node
                 depth += 1
                 L[depth, ctemp * node : ctemp * (node + 1)] = (
-                    (1 - 2 * (a < 0)) * (1 - 2 * (b < 0)) * np.min((np.abs(a), np.abs(b)))
+                    (1 - 2 * (a > 0)) * (1 - 2 * (b > 0)) * np.max((np.abs(a), np.abs(b)))
                 )
             elif ns[npos] == 1:
                 ucapn = ucap[depth + 1, ctemp * lnode : ctemp * (lnode + 1)]  # incoming decisions from left child
