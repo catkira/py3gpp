@@ -1,5 +1,4 @@
 import numpy as np
-import sys
 
 
 def nrCRCEncode(blk, poly, mask=0):
@@ -34,8 +33,7 @@ def nrCRCEncode(blk, poly, mask=0):
         crc_coeffs = [24, 23, 21, 20, 17, 15, 13, 12, 8, 4, 2, 1, 0]
         # fmt: on
     else:
-        print("Error: invalid CRC polynomial specified!")
-        sys.exit()
+        raise ValueError('invalid CRC polynomial specified!')
     blksrc = np.empty(len(blk) + L, "int")
     blksrc[: len(blk)] = blk
 
@@ -57,12 +55,3 @@ def nrCRCEncode(blk, poly, mask=0):
     for i in range(L):
         blksrc[len(blk) + i] = (crc >> (L - i - 1)) & 1
     return blksrc
-
-
-def test_nrCRCEncode():
-    test = np.zeros(32)
-    test[0] = 1
-    result = nrCRCEncode(test, "24C")
-    # fmt: off
-    assert np.all(result == [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0])
-    # fmt: on
