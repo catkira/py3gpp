@@ -14,5 +14,5 @@ def nrPBCHDMRSIndices(ncellid, style="matlab"):
         indices = np.concatenate((indices_sym1_3 + 240, indices_sym2 + 2 * 240, indices_sym1_3 + 3 * 240))
         return indices
     else:
-        print("Error: Unknown style!")
+        raise ValueError("Unknown style!")
         return
