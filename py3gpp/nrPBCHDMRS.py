@@ -1,13 +1,16 @@
 import numpy as np
-from .helper import _calc_gold
+from py3gpp.nrPRBS import nrPRBS
+from py3gpp.nrSymbolModulate import nrSymbolModulate
 
 
 def nrPBCHDMRS(ncellid, ibar_SSB):
-    # ibar_SSB is a 3 bit value
-    c_init = 2**11 * (ibar_SSB + 1) * (ncellid // 4 + 1) + 2**6 * (ibar_SSB + 1) + (ncellid % 4)
-    c = _calc_gold(c_init, 2*144 + 1)
+    assert ncellid >= 0 and ncellid <= 1007
+    assert ibar_SSB >= 0 and ibar_SSB <= 7
 
-    r = np.empty(144, "complex")
-    for m in range(len(r)):
-        r[m] = 1 / np.sqrt(2) * (1 - 2 * c[2 * m]) + 1j * 1 / np.sqrt(2) * (1 - 2 * c[2 * m + 1])
-    return r
+    c_init = nrPBCHDMRScinit(ibar_SSB, ncellid)
+    c = nrPRBS(c_init, 2*144)
+
+    return nrSymbolModulate(c, 'qpsk')
+
+def nrPBCHDMRScinit(issb, ncellid):
+    return 2**11 * (issb + 1) * (ncellid//4 + 1) + 2**6 * (issb + 1) + (ncellid % 4)
