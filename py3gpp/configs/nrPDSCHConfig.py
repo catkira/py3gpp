@@ -1,10 +1,11 @@
+from py3gpp.nrPDSCHDMRSConfig import nrPDSCHDMRSConfig
 
-class nrPDSCHConfig:
+class nrPDSCHConfig(nrPDSCHDMRSConfig):
      def __init__(self):
           self._n_rb_size = 12
-          self._n_size_bwp = 0
-          self._n_start_bwp = 0
-          self._mapping_type = "A"
+          self._nSizeBWP = 0
+          self._nStartBWP = 0
+          self._MappingType = "A"
 
           self._dmrs_typeA_pos = 2
           self._dmrs_len = 1
@@ -22,31 +23,31 @@ class nrPDSCHConfig:
          return self._n_rb_size
 
      @property
-     def n_size_bwp(self):
-         return self._n_size_bwp
+     def nSizeBWP(self):
+         return self._nSizeBWP
 
-     @n_size_bwp.setter
-     def n_size_bwp(self, size):
+     @nSizeBWP.setter
+     def nSizeBWP(self, size):
          assert size > 1 and size < 275, "The value must be in the range 1...275."
-         self._n_size_bwp = size
+         self._nSizeBWP = size
 
      @property
-     def n_start_bwp(self):
-         return self._n_start_bwp
+     def nStartBWP(self):
+         return self._nStartBWP
 
-     @n_start_bwp.setter
-     def n_start_bwp(self, start):
+     @nStartBWP.setter
+     def nStartBWP(self, start):
          assert start >= 0 and start < 2473, "The value must be in the range 0...2473."
-         self._n_start_bwp = start
+         self._nStartBWP = start
 
      @property
-     def mapping_type(self):
-         return self._mapping_type
+     def MappingType(self):
+         return self._MappingType
 
-     @mapping_type.setter
-     def mapping_type(self, map_type):
+     @MappingType.setter
+     def MappingType(self, map_type):
          assert map_type in ["A", "B"], "The value must be in A or B"
-         self._mapping_type = map_type
+         self._MappingType = map_type
 
      @property
      def dmrs_typeA_pos(self):
