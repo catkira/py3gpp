@@ -12,7 +12,7 @@ def run_nr_prbs(cinit, size, eng):
 
     data = nrPRBS(cinit, size)
 
-    assert (ref_data == data).all()
+    assert np.all(ref_data == data)
 
 @pytest.mark.parametrize("cinit", [0, 100, 1245345, 534667868])
 @pytest.mark.parametrize("size", [1024, 8192])
