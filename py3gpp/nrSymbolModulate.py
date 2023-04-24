@@ -8,7 +8,6 @@ def nrSymbolModulate(databits, modulation):
 
     assert int_modtype in ['bpsk_pi2', 'bpsk', 'qpsk', 'qam16', 'qam64', 'qam256'], "modulation type is incorrect"
     assert len(databits) > 0, "length of databits must be greater 0"
-    assert max(databits) < 2 and min(databits) >= 0, "databits must be list of 0s and 1s"
 
     if int_modtype == 'bpsk':
         res_arr = np.zeros(len(databits), dtype=(complex))
