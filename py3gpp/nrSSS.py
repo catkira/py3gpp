@@ -15,6 +15,7 @@ def _gold(N_id_1, N_id_2):
 
 
 def nrSSS(ncellid):
+    assert ncellid >= 0 and ncellid <= 1007, "invalid ncellid"
     N_id_2 = ncellid % 3
     N_id_1 = (ncellid - N_id_2) // 3
     return _gold(N_id_1, N_id_2)
