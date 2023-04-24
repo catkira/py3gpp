@@ -22,3 +22,5 @@ from .nrPolarDecode import nrPolarDecode
 from .nrCRCEncode import nrCRCEncode
 from .nrCRCDecode import nrCRCDecode
 from .nrBCHDecode import nrBCHDecode
+from .nrPRBS import nrPRBS
+from .nrSymbolModulate import nrSymbolModulate
