@@ -17,9 +17,6 @@ def run_nr_pss(ncellid, eng):
     data = nrPSS(ncellid)
     indices = nrPSSIndices()
 
-    print(ref_data[0:8])
-    print(data[0:8])
-
     assert np.all(ref_data == data)
     assert np.all(indices == ref_ind)
 
