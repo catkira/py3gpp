@@ -1,7 +1,6 @@
 from .nrPSS import nrPSS
 from .nrSSS import nrSSS
 from .nrPBCHDMRS import nrPBCHDMRS
-from .nrCarrierConfig import nrCarrierConfig
 from .nrResourceGrid import nrResourceGrid
 from .nrOFDMModulate import nrOFDMModulate
 from .nrOFDMDemodulate import nrOFDMDemodulate
@@ -25,3 +24,9 @@ from .nrCRCDecode import nrCRCDecode
 from .nrBCHDecode import nrBCHDecode
 from .nrPRBS import nrPRBS
 from .nrSymbolModulate import nrSymbolModulate
+
+from .configs.nrCarrierConfig import nrCarrierConfig
+from .configs.nrNumerologyConfig import nrNumerologyConfig
+from .configs.nrPDSCHConfig import nrPDSCHConfig
+from .configs.nrPDSCHDMRSConfig import nrPDSCHDMRSConfig
+from .configs.nrPDSCHPTRSConfig import nrPDSCHPTRSConfig
