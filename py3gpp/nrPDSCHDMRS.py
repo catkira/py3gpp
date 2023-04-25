@@ -21,7 +21,7 @@ def nrPDSCHDMRS(cfg: nrPDSCHConfig, carrier: nrCarrierConfig):
 
     n_scid = 0
 
-    occupied_syms = PDSCHDMRSSyms(cfg.DMRS.DMRSTypeAPosition, cfg.SymbolAllocation[1], cfg.DMRS.DMRSAdditionalPosition)
+    occupied_syms = PDSCHDMRSSyms(cfg)
 
     # Start generation for every symbol
     dmrs_syms = np.array([])
@@ -36,8 +36,12 @@ def nrPDSCHDMRS(cfg: nrPDSCHConfig, carrier: nrCarrierConfig):
     return dmrs_syms
 
 # LUT for DMRS occupied symbols positions
-def PDSCHDMRSSyms(typeA_pos, sym_alloc, add_pos):
+def PDSCHDMRSSyms(cfg: nrPDSCHConfig):
     l1 = 11
+    typeA_pos = cfg.DMRS.DMRSTypeAPosition
+    sym_alloc = cfg.SymbolAllocation[1]
+    add_pos = cfg.DMRS.DMRSAdditionalPosition
+    dmrs_len = cfg.DMRS.DMRSLength
 
     occupied_syms = np.array([], dtype=int)
     occupied_syms = np.append(occupied_syms, typeA_pos)
@@ -63,6 +67,10 @@ def PDSCHDMRSSyms(typeA_pos, sym_alloc, add_pos):
             occupied_syms = np.append(occupied_syms, [7, 11])
         elif add_pos == 3:
             occupied_syms = np.append(occupied_syms, [5, 8, 11])
+
+    if dmrs_len == 2:
+        occupied_syms = [x+1 for x in occupied_syms]
+
     return occupied_syms
 
 def PDSCHDMRScinit(sps, n_slot, n_symb, NIDSCID, n_scid):

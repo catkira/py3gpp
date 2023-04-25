@@ -7,7 +7,7 @@ from py3gpp.nrPDSCHDMRS import PDSCHDMRSSyms
 from py3gpp.configs.nrPDSCHConfig import nrPDSCHConfig
 
 def nrPDSCHDMRSIndices(cfg: nrPDSCHConfig):
-    frame_begin = cfg.NRBSize* min(cfg.PRBSet)
+    frame_begin = cfg.NRBSize * min(cfg.PRBSet)
     frame_end = cfg.NRBSize * (max(cfg.PRBSet)+1)
     frame_size = cfg.NRBSize * cfg.NSizeBWP
 
@@ -23,7 +23,7 @@ def nrPDSCHDMRSIndices(cfg: nrPDSCHConfig):
         occupied_res = dmrs_full_range.reshape(-1, 2)[::3].ravel()
 
     # Calculates occupied symbols numbers. Time positions
-    occupied_syms = PDSCHDMRSSyms(cfg.DMRS.DMRSTypeAPosition, cfg.SymbolAllocation[1], cfg.DMRS.DMRSAdditionalPosition)
+    occupied_syms = PDSCHDMRSSyms(cfg)
 
     dmrs_indices = np.array([])
     for idx, sym in enumerate(occupied_syms):
