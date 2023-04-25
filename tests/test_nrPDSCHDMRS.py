@@ -1,17 +1,24 @@
 import os
+import sys
 import itertools
 import numpy as np
 import pytest
-import sys
 
-from py3gpp.nrPDSCHDMRSIndices import nrPDSCHDMRSIndices
+from py3gpp.nrPDSCHDMRS import nrPDSCHDMRS
 from py3gpp.configs.nrPDSCHConfig import nrPDSCHConfig
+from py3gpp.configs.nrCarrierConfig import nrCarrierConfig
 
 sys.path.append("test_data")
 
-from test_data.pdsch import pdschdmrs_indices_ref
+from test_data.pdsch import pdschdmrs_symbols
 
 def run_nr_pdschdmrs(cfg):
+    carrier = nrCarrierConfig();
+    carrier.SubcarrierSpacing = 120;
+    carrier.CyclicPrefix = 'normal';
+    carrier.NSizeGrid = 132;
+    carrier.NStartGrid = 0;
+
     pdsch_cfg = nrPDSCHConfig();
     pdsch_cfg.NSizeBWP = cfg['n_size_bwp']
     pdsch_cfg.NStartBWP = cfg['n_start_bwp']
@@ -25,17 +32,20 @@ def run_nr_pdschdmrs(cfg):
     pdsch_cfg.PRBSet = cfg['PRBSet']
     pdsch_cfg.SymbolAllocation = cfg['SymbolAllocation']
 
-    pdschdmrs_indices = nrPDSCHDMRSIndices(pdsch_cfg)
+    pdschdmrs_syms = nrPDSCHDMRS(pdsch_cfg, carrier)
 
     # Cut neccesary part of reference indices
     # TODO: now it works only for 0 and 3 symbols. 1 and 2 quite tricky to cut...
-    ref_data = pdschdmrs_indices_ref - 1
+    ref_data = pdschdmrs_symbols
     first_idx = min(pdsch_cfg.PRBSet)*pdsch_cfg.NRBSize
     last_idx = (pdsch_cfg.DMRS.DMRSAdditionalPosition+1) * (max(pdsch_cfg.PRBSet)+1) * pdsch_cfg.NRBSize
     last_idx = last_idx//2
     ref_data = ref_data[first_idx:last_idx]
 
-    assert np.array_equal(pdschdmrs_indices, ref_data)
+    pdschdmrs_syms = np.around(pdschdmrs_syms, 4)
+    pdschdmrs_syms_ref = np.around(ref_data, 4)
+
+    assert np.array_equal(pdschdmrs_syms, pdschdmrs_syms_ref)
 
 
 @pytest.mark.parametrize('dmrs_add_pos', [0, 3])
