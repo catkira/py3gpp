@@ -32,7 +32,7 @@ class nrPDSCHConfig(PDSCHConfigBase, CommonConfig):
 
     @property
     def NStartBWP(self):
-        return self._nStartBWP
+        return self._NStartBWP
 
     @NStartBWP.setter
     def NStartBWP(self, start):
