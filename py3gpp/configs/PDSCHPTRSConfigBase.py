@@ -30,4 +30,4 @@ class PDSCHPTRSConfigBase():
     @REOffset.setter
     def REOffset(self, offset):
         assert offset in ['00', '01', '10', '11'], "The value must be in ['00', '01', '10', '11']"
-        self._REOffset = fd
+        self._REOffset = offset

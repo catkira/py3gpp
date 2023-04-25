@@ -23,11 +23,11 @@ def run_nr_pdschdmrs(cfg, eng):
 
     pdschdmrs_indices = nrPDSCHDMRSIndices(pdsch_cfg)
 
-    [_, pdschdmrs_indices_ref] = eng.gen_pdschdmrs(cfg, nargout=2)
-    pdschdmrs_indices_ref = np.array(list(itertools.chain(*pdschdmrs_indices_ref)))
-    pdschdmrs_indices_ref = pdschdmrs_indices_ref - 1
+    [_, indices_ref, _, _] = eng.gen_pdschdmrs(cfg, nargout=4)
+    indices_ref = np.array(list(itertools.chain(*indices_ref)))
+    indices_ref = indices_ref - 1
 
-    assert np.array_equal(pdschdmrs_indices, pdschdmrs_indices_ref)
+    assert np.array_equal(pdschdmrs_indices, indices_ref)
 
 
 @pytest.mark.parametrize('typeA_pos', [2, 3])

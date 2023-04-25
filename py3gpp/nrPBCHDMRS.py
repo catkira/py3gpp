@@ -1,4 +1,3 @@
-import numpy as np
 from py3gpp.nrPRBS import nrPRBS
 from py3gpp.nrSymbolModulate import nrSymbolModulate
 

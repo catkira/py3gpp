@@ -56,7 +56,7 @@ class PDSCHConfigBase():
         raise NotImplementedError('not ready yet')
         return self._VRBBundleSize
 
-    @VRBToPRBInterleaving.setter
+    @VRBBundleSize.setter
     def VRBBundleSize(self, N):
         raise NotImplementedError('not ready yet')
         assert N in [2, 4], "The value must be 2 or 4"

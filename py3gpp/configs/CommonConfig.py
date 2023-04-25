@@ -40,7 +40,7 @@ class CommonConfig():
 
     @RNTI.setter
     def RNTI(self, rnti):
-        assert rnti >= 0 and rnti <= 65535 , "The value must be 0..65535"
+        assert rnti >= 0 and rnti <= 65535, "The value must be 0..65535"
         self._RNTI = rnti
 
     @property
