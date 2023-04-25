@@ -1,6 +1,4 @@
 function [dmrsSymbols, dmrsIndices] = gen_pdschdmrs(cfg)
-%     cfg
-
     carrier = nrCarrierConfig;
     carrier.SubcarrierSpacing = 120;
     carrier.CyclicPrefix = 'normal';
