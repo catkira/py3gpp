@@ -1,5 +1,5 @@
 import numpy as np
-from py3gpp import nrCarrierConfig
+from py3gpp.configs import nrCarrierConfig
 from py3gpp.nrOFDMInfo import nrOFDMInfo
 
 # TODO: implement windowing
