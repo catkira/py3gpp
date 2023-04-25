@@ -10,7 +10,7 @@ from py3gpp.configs.nrCarrierConfig import nrCarrierConfig
 
 sys.path.append("test_data")
 
-from test_data.pdsch import pdschdmrs_symbols
+from test_data.pdsch import pdschdmrs_symbols_ref
 
 def run_nr_pdschdmrs(cfg):
     carrier = nrCarrierConfig();
@@ -36,7 +36,7 @@ def run_nr_pdschdmrs(cfg):
 
     # Cut neccesary part of reference indices
     # TODO: now it works only for 0 and 3 symbols. 1 and 2 quite tricky to cut...
-    ref_data = pdschdmrs_symbols
+    ref_data = pdschdmrs_symbols_ref
     first_idx = min(pdsch_cfg.PRBSet)*pdsch_cfg.NRBSize
     last_idx = (pdsch_cfg.DMRS.DMRSAdditionalPosition+1) * (max(pdsch_cfg.PRBSet)+1) * pdsch_cfg.NRBSize
     last_idx = last_idx//2

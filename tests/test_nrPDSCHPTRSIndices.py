@@ -9,8 +9,8 @@ from py3gpp.nrPDSCHPTRSIndices import nrPDSCHPTRSIndices
 from py3gpp.configs.nrPDSCHConfig import nrPDSCHConfig
 from py3gpp.configs.nrCarrierConfig import nrCarrierConfig
 
-# sys.path.append("test_data")
-# from test_data.pdsch import pdschdmrs_indices_ref
+sys.path.append("test_data")
+from test_data.pdsch import pdschptrs_indices_ref
 
 def run_nr_pdschptrs(cfg):
     carrier = nrCarrierConfig();
@@ -38,21 +38,23 @@ def run_nr_pdschptrs(cfg):
     pdsch_cfg.PTRS.FrequencyDensity = cfg['PTRSFrequencyDensity']
     pdsch_cfg.PTRS.REOffset = cfg['PTRSREOffset']
 
-    pdschptrs_syms = nrPDSCHPTRSIndices(carrier, pdsch_cfg)
+    pdschptrs_indices = nrPDSCHPTRSIndices(carrier, pdsch_cfg)
 
-    # assert np.array_equal(pdschdmrs_indices, ref_data)
+    # Align MATLAB with Python
+    ref_indices = pdschptrs_indices_ref - 1
+
+    assert np.array_equal(pdschptrs_indices, ref_indices)
 
 
-@pytest.mark.parametrize('dmrs_add_pos', [0, 3])
-def test_nr_pdschptrs(dmrs_add_pos):
+def test_nr_pdschptrs():
     cfg = {}
     cfg['n_size_bwp'] = 132
     cfg['n_start_bwp'] = 0
     cfg['MappingType'] = "A"
-    cfg['DMRSTypeAPosition'] = 2
+    cfg['DMRSTypeAPosition'] = 3
     cfg['DMRSLength'] = 1
-    cfg['DMRSAdditionalPosition'] = dmrs_add_pos
-    cfg['PRBSet'] = list(range(0, 52))
+    cfg['DMRSAdditionalPosition'] = 3
+    cfg['PRBSet'] = list(range(0, 132))
     cfg['SymbolAllocation'] = [2, 12]
     cfg['DMRSConfigurationType'] = 2
     cfg['NIDNSCID'] = 1
