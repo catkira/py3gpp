@@ -9,6 +9,7 @@ from .nrSSSIndices import nrSSSIndices
 from .nrExtractResources import nrExtractResources
 from .nrPSSIndices import nrPSSIndices
 from .nrTimingEstimate import nrTimingEstimate
+from .nrPBCH import nrPBCH
 from .nrPBCHDMRSIndices import nrPBCHDMRSIndices
 from .nrSetResources import nrSetResources
 from .nrChannelEstimate import nrChannelEstimate
@@ -22,3 +23,5 @@ from .nrPolarDecode import nrPolarDecode
 from .nrCRCEncode import nrCRCEncode
 from .nrCRCDecode import nrCRCDecode
 from .nrBCHDecode import nrBCHDecode
+from .nrPRBS import nrPRBS
+from .nrSymbolModulate import nrSymbolModulate
