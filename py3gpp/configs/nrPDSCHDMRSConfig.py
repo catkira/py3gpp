@@ -1,11 +1,12 @@
-from py3gpp.DMRSConfigBase import DMRSConfigBase
+from .DMRSConfigBase import DMRSConfigBase
 
 class nrPDSCHDMRSConfig(DMRSConfigBase):
     def __init__(self):
+        super().__init__()
         self._DMRSConfigurationType = 1
         self._DMRSReferencePoint = 'CRB0'
         self._NumCDMGroupsWithoutData = 2
-        self._DMRSDownlinkR16 =0
+        self._DMRSDownlinkR16 = 0
 
     @property
     def DMRSConfigurationType(self):

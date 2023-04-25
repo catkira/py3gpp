@@ -2,7 +2,7 @@
 class DMRSConfigBase():
      def __init__(self):
         self._NLayers = 1
-        self._Ports
+        self._Ports = None
         self._DMRSTypeAPosition = 2
         self._DMRSAdditionalPosition = 0
         self._DMRSLength = 0
@@ -82,9 +82,9 @@ class DMRSConfigBase():
 
      @property
      def NSCID(self):
-        return self.NSCID
+        return self._NSCID
 
      @NSCID.setter
-     def NSCID(self, scis):
-        assert scis in [0, 1], "The value must be 0 or 1"
-        self.NSCID = nid
+     def NSCID(self, nscid):
+        assert nscid in [0, 1], "The value must be 0 or 1"
+        self._NSCID = nscid

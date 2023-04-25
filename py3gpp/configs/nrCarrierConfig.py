@@ -1,4 +1,4 @@
-from py3gpp.nrNumerologyConfig import nrNumerologyConfig
+from .nrNumerologyConfig import nrNumerologyConfig
 
 class nrCarrierConfig(nrNumerologyConfig):
         def __init__(self):

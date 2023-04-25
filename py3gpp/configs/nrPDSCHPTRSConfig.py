@@ -1,7 +1,8 @@
-from py3gpp.PDSCHPTRSConfigBase import PDSCHPTRSConfigBase
+from .PDSCHPTRSConfigBase import PDSCHPTRSConfigBase
 
 class nrPDSCHPTRSConfig(PDSCHPTRSConfigBase):
     def __init__(self):
+        super().__init__()
         self._PTRSPortSet = []
 
     @property
