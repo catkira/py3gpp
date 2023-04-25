@@ -22,16 +22,18 @@ function [dmrsSymbols, dmrsIndices, ptrsSymbols, ptrsIndices] = gen_pdschdmrs(cf
     pdsch.DMRS.NSCID = cfg.NSCID;    % 0 or 1
     pdsch.NumLayers = numel(pdsch.DMRS.DMRSPortSet);
 
-    pdsch.EnablePTRS = cfg.EnablePTRS;
-    pdsch.RNTI = 1;
-    pdsch.PTRS.TimeDensity = cfg.PTRSTimeDensity;
-    pdsch.PTRS.FrequencyDensity = cfg.PTRSFrequencyDensity; % 2 or 4
-    pdsch.PTRS.REOffset = cfg.PTRSREOffset;      % '00', '01', '10', '11'
-    pdsch.PTRS.PTRSPortSet = min(pdsch.DMRS.DMRSPortSet);
-
     % Generate DM-RS indices
     dmrsSymbols = nrPDSCHDMRS(carrier, pdsch);
     dmrsIndices = nrPDSCHDMRSIndices(carrier, pdsch);
+
+    if (cfg.EnablePTRS)
+        pdsch.EnablePTRS = cfg.EnablePTRS;
+        pdsch.RNTI = 1;
+        pdsch.PTRS.TimeDensity = cfg.PTRSTimeDensity;
+        pdsch.PTRS.FrequencyDensity = cfg.PTRSFrequencyDensity; % 2 or 4
+        pdsch.PTRS.REOffset = cfg.PTRSREOffset;      % '00', '01', '10', '11'
+        pdsch.PTRS.PTRSPortSet = min(pdsch.DMRS.DMRSPortSet);
+    end
 
     ptrsSymbols = nrPDSCHPTRS(carrier, pdsch);
     ptrsIndices = nrPDSCHPTRSIndices(carrier, pdsch);

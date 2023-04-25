@@ -51,6 +51,7 @@ def test_nr_pdschdmrs(symb_alloc, dmrs_add_pos, typeA_pos, PRBSet, dmrs_cfg_type
     cfg['DMRSConfigurationType'] = dmrs_cfg_type
     cfg['NIDNSCID'] = 1
     cfg['NSCID'] = 0
+    cfg['EnablePTRS'] = 0
 
     try:
         run_nr_pdschdmrs(cfg, eng)
