@@ -1,18 +1,18 @@
 import os
-import sys
 import itertools
 import numpy as np
 import pytest
+import sys
 
-from py3gpp.nrPDSCHDMRS import nrPDSCHDMRS
+from py3gpp.nrPDSCHPTRS import PDSCHPTRSSyms
+from py3gpp.nrPDSCHPTRSIndices import nrPDSCHPTRSIndices
 from py3gpp.configs.nrPDSCHConfig import nrPDSCHConfig
 from py3gpp.configs.nrCarrierConfig import nrCarrierConfig
 
 sys.path.append("test_data")
+from test_data.pdsch import pdschptrs_indices_ref
 
-from test_data.pdsch import pdschdmrs_symbols_ref
-
-def run_nr_pdschdmrs(cfg):
+def run_nr_pdschptrs(cfg):
     carrier = nrCarrierConfig();
     carrier.SubcarrierSpacing = 120;
     carrier.CyclicPrefix = 'normal';
@@ -29,38 +29,43 @@ def run_nr_pdschdmrs(cfg):
     pdsch_cfg.DMRS.DMRSConfigurationType = cfg['DMRSConfigurationType']
     pdsch_cfg.DMRS.NIDNSCID = cfg['NIDNSCID']
     pdsch_cfg.DMRS.NSCID = cfg['NSCID']
+    pdsch_cfg.RNTI = cfg['RNTI']
     pdsch_cfg.PRBSet = cfg['PRBSet']
     pdsch_cfg.SymbolAllocation = cfg['SymbolAllocation']
 
-    pdschdmrs_syms = nrPDSCHDMRS(pdsch_cfg, carrier)
+    pdsch_cfg.EnablePTRS = cfg['EnablePTRS']
+    pdsch_cfg.PTRS.TimeDensity = cfg['PTRSTimeDensity']
+    pdsch_cfg.PTRS.FrequencyDensity = cfg['PTRSFrequencyDensity']
+    pdsch_cfg.PTRS.REOffset = cfg['PTRSREOffset']
 
-    # Cut neccesary part of reference indices
-    # TODO: now it works only for 0 and 3 symbols. 1 and 2 quite tricky to cut...
-    ref_data = pdschdmrs_symbols_ref
-    first_idx = min(pdsch_cfg.PRBSet)*pdsch_cfg.NRBSize
-    last_idx = (pdsch_cfg.DMRS.DMRSAdditionalPosition+1) * (max(pdsch_cfg.PRBSet)+1) * pdsch_cfg.NRBSize
-    last_idx = last_idx//2
-    ref_data = ref_data[first_idx:last_idx]
+    pdschptrs_indices = nrPDSCHPTRSIndices(carrier, pdsch_cfg)
 
-    pdschdmrs_syms = np.around(pdschdmrs_syms, 4)
-    pdschdmrs_syms_ref = np.around(ref_data, 4)
+    # Align MATLAB with Python
+    ref_indices = pdschptrs_indices_ref - 1
 
-    assert np.array_equal(pdschdmrs_syms, pdschdmrs_syms_ref)
+    assert np.array_equal(pdschptrs_indices, ref_indices)
 
 
-@pytest.mark.parametrize('dmrs_add_pos', [0, 3])
-def test_nr_pdschdmrs(dmrs_add_pos):
+def test_nr_pdschptrs():
     cfg = {}
     cfg['n_size_bwp'] = 132
     cfg['n_start_bwp'] = 0
     cfg['MappingType'] = "A"
-    cfg['DMRSTypeAPosition'] = 2
+    cfg['DMRSTypeAPosition'] = 3
     cfg['DMRSLength'] = 1
-    cfg['DMRSAdditionalPosition'] = dmrs_add_pos
+    cfg['DMRSAdditionalPosition'] = 3
     cfg['PRBSet'] = list(range(0, 132))
     cfg['SymbolAllocation'] = [2, 12]
-    cfg['DMRSConfigurationType'] = 1
+    cfg['DMRSConfigurationType'] = 2
     cfg['NIDNSCID'] = 1
     cfg['NSCID'] = 0
+    cfg['RNTI'] = 1
+    cfg['EnablePTRS'] = 1
+    cfg['PTRSTimeDensity'] = 2
+    cfg['PTRSFrequencyDensity'] = 4
+    cfg['PTRSREOffset'] = '11'
 
-    run_nr_pdschdmrs(cfg)
+    run_nr_pdschptrs(cfg)
+
+if __name__ == '__main__':
+    test_nr_pdschptrs(1)

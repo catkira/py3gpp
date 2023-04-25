@@ -30,3 +30,6 @@ from .configs.nrNumerologyConfig import nrNumerologyConfig
 from .configs.nrPDSCHConfig import nrPDSCHConfig
 from .configs.nrPDSCHDMRSConfig import nrPDSCHDMRSConfig
 from .configs.nrPDSCHPTRSConfig import nrPDSCHPTRSConfig
+
+from .nrPDSCHPTRS import nrPDSCHPTRS
+from .nrPDSCHPTRSIndices import nrPDSCHPTRSIndices
