@@ -34,12 +34,15 @@ jobs:
           mkdir badge
           anybadge --value=$score --file=badge/pylint.svg pylint
       - name: upload pylint badge    
+        if: ${{ !github.event.pull_request.head.repo.fork }}
         uses: actions/configure-pages@v1
-      - name: Deploy to GitHub Pages        
+      - name: Deploy to GitHub Pages
+        if: ${{ !github.event.pull_request.head.repo.fork }}
         uses: actions/upload-pages-artifact@v1
         with:
           path: 'badge'
       - id: deployment
+        if: ${{ !github.event.pull_request.head.repo.fork }}
         uses: actions/deploy-pages@master          
 
   build:
@@ -68,6 +71,7 @@ jobs:
   pypi:
     needs: build  
     runs-on: ubuntu-latest
+    if: ${{ !github.event.pull_request.head.repo.fork }}
   
     steps:
       - uses: actions/checkout@v3
