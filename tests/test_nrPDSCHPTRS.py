@@ -1,15 +1,16 @@
-import matlab.engine
-import os
-import itertools
+import sys
 import numpy as np
 import pytest
-import time
 
 from py3gpp.nrPDSCHPTRS import nrPDSCHPTRS
 from py3gpp.configs.nrPDSCHConfig import nrPDSCHConfig
 from py3gpp.configs.nrCarrierConfig import nrCarrierConfig
 
-def run_nr_pdschptrs(cfg, eng):
+sys.path.append("test_data")
+
+from test_data.pdsch import pdschptrs_symbols_ref
+
+def run_nr_pdschptrs(cfg):
     carrier = nrCarrierConfig();
     carrier.SubcarrierSpacing = 120;
     carrier.CyclicPrefix = 'normal';
@@ -36,49 +37,31 @@ def run_nr_pdschptrs(cfg, eng):
     pdsch_cfg.PTRS.REOffset = cfg['PTRSREOffset']
 
     pdschptrs_syms = nrPDSCHPTRS(carrier, pdsch_cfg)
+    pdschptrs_syms = np.around(pdschptrs_syms, 4)
 
-    [_,_,data_ref,_] = eng.gen_pdschdmrs(cfg, nargout=4)
-    data_ref = np.array(list(itertools.chain(*data_ref)))
+    ref_data = pdschptrs_symbols_ref
+    ref_data = np.around(ref_data, 4)
 
-    assert np.array_equal(pdschptrs_syms, data_ref)
+    assert np.array_equal(pdschptrs_syms, ref_data)
 
 
-@pytest.mark.parametrize('typeA_pos', [2, 3])
-@pytest.mark.parametrize('symb_alloc', [[2, 12]])
-@pytest.mark.parametrize('dmrs_add_pos', [0, 1, 2, 3])
-@pytest.mark.parametrize('PRBSet', [list(range(0, 132)), list(range(60, 132)), list(range(30, 60))])
-@pytest.mark.parametrize('dmrs_cfg_type', [1, 2])
-@pytest.mark.parametrize('PTRSREOffset', ['00', '01', '10', '11'])
-@pytest.mark.parametrize('PTRSFrequencyDensity', [2, 4])
-@pytest.mark.parametrize('PTRSTimeDensity', [1, 2, 4])
-def test_nr_pdschptrs(typeA_pos, symb_alloc, dmrs_add_pos, PRBSet, dmrs_cfg_type, PTRSREOffset, PTRSFrequencyDensity, PTRSTimeDensity):
-    eng = matlab.engine.connect_matlab()
-    eng.cd(os.path.dirname(__file__))
-
+def test_nr_pdschptrs():
     cfg = {}
     cfg['n_size_bwp'] = 132
     cfg['n_start_bwp'] = 0
     cfg['MappingType'] = "A"
-    cfg['DMRSTypeAPosition'] = typeA_pos
+    cfg['DMRSTypeAPosition'] = 3
     cfg['DMRSLength'] = 1
-    cfg['DMRSAdditionalPosition'] = dmrs_add_pos
-    cfg['PRBSet'] = PRBSet
-    cfg['SymbolAllocation'] = symb_alloc
+    cfg['DMRSAdditionalPosition'] = 3
+    cfg['PRBSet'] = list(range(0, 132))
+    cfg['SymbolAllocation'] = [2, 12]
     cfg['DMRSConfigurationType'] = 2
     cfg['NIDNSCID'] = 1
     cfg['NSCID'] = 0
     cfg['RNTI'] = 1
     cfg['EnablePTRS'] = 1
-    cfg['PTRSTimeDensity'] = PTRSTimeDensity
-    cfg['PTRSFrequencyDensity'] = PTRSFrequencyDensity
-    cfg['PTRSREOffset'] = PTRSREOffset
+    cfg['PTRSTimeDensity'] = 2
+    cfg['PTRSFrequencyDensity'] = 4
+    cfg['PTRSREOffset'] = '11'
 
-    try:
-        run_nr_pdschptrs(cfg, eng)
-    finally:
-        eng.quit()
-        # MATLAB hangs in case too fast requests
-        time.sleep(100/1000.0)
-
-if __name__ == '__main__':
-    test_nr_pdschptrs(3, [2, 12], 0, list(range(60, 100)), 1, '01', 2, 1)
+    run_nr_pdschptrs(cfg)
