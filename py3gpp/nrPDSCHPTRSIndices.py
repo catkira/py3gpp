@@ -8,6 +8,9 @@ from py3gpp.configs.nrPDSCHConfig import nrPDSCHConfig
 from py3gpp.configs.nrCarrierConfig import nrCarrierConfig
 
 def nrPDSCHPTRSIndices(carrier: nrCarrierConfig, cfg: nrPDSCHConfig):
+    if cfg.EnablePTRS == 0:
+        return []
+
     frame_begin = cfg.NRBSize * min(cfg.PRBSet)
     frame_end = cfg.NRBSize * (max(cfg.PRBSet)+1)
     frame_size = cfg.NRBSize * cfg.NSizeBWP
