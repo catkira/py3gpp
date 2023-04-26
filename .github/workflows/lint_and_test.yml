@@ -33,15 +33,17 @@ jobs:
           echo "Pylint score was $score"
           mkdir badge
           anybadge --value=$score --file=badge/pylint.svg pylint
-      if: ${{ !github.event.pull_request.head.repo.fork }}
-        - name: upload pylint badge
-          uses: actions/configure-pages@v1
-        - name: Deploy to GitHub Pages
-          uses: actions/upload-pages-artifact@v1
-          with:
-            path: 'badge'
-        - id: deployment
-          uses: actions/deploy-pages@master
+      - name: upload pylint badge
+        if: ${{ !github.event.pull_request.head.repo.fork }}
+        uses: actions/configure-pages@v1
+      - name: Deploy to GitHub Pages
+        if: ${{ !github.event.pull_request.head.repo.fork }}
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: 'badge'
+      - id: deployment
+        if: ${{ !github.event.pull_request.head.repo.fork }}
+        uses: actions/deploy-pages@master
 
   build:
     runs-on: ubuntu-latest
