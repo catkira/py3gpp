@@ -12,10 +12,10 @@ jobs:
 
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}  
+      url: ${{ steps.deployment.outputs.page_url }}
 
     runs-on: ubuntu-latest
-  
+
     steps:
       - uses: actions/checkout@v3
 
@@ -38,17 +38,18 @@ jobs:
           anybadge --value=$score --file=badge/pylint.svg pylint
 
       - name: upload pylint badge
+        if: github.ref == 'refs/heads/master'      
         uses: actions/configure-pages@v1
-        continue-on-error: true
 
       - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/master'      
         uses: actions/upload-pages-artifact@v1
         with:
           path: 'badge'
-        continue-on-error: true
+
       - id: deployment
+        if: github.ref == 'refs/heads/master'      
         uses: actions/deploy-pages@master
-        continue-on-error: true
 
   build:
     runs-on: ubuntu-latest
@@ -68,15 +69,15 @@ jobs:
           pip install -r requirements.txt
           pip install build
           python3 -m build
-          pip install -e .          
+          pip install -e .
       - name: Test with pytest
         run: |
           pytest --ignore=tests/matlab tests/
 
   pypi:
-    needs: build  
+    needs: build
     runs-on: ubuntu-latest
-  
+
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python 3.10
@@ -91,6 +92,7 @@ jobs:
         run: |
           python3 -m build
       - name: upload package to pypi
+        if: github.ref == 'refs/heads/master'      
         run: |
           cat >> ~/.pypirc << EOF
           [pypi]
