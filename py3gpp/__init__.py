@@ -31,5 +31,5 @@ from .configs.nrPDSCHConfig import nrPDSCHConfig
 from .configs.nrPDSCHDMRSConfig import nrPDSCHDMRSConfig
 from .configs.nrPDSCHPTRSConfig import nrPDSCHPTRSConfig
 
-# from .nrPDSCHPTRS import nrPDSCHPTRS
+from .nrPDSCHPTRS import nrPDSCHPTRS
 from .nrPDSCHPTRSIndices import nrPDSCHPTRSIndices

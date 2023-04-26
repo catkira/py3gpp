@@ -29,7 +29,7 @@ def nrPDSCHPTRS(cfg: nrPDSCHConfig, carrier: nrCarrierConfig):
     occupied_syms = PDSCHDMRSSyms(cfg)
 
     # Start generation for every symbol
-    n_symb = occupied_syms[0]:
+    n_symb = occupied_syms[0]
     cinit_dmrs = PDSCHPTRScinit(carrier.SymbolsPerSlot, carrier.NSlot, n_symb, cfg.DMRS.NIDNSCID, n_scid)
     dmrs_prbs = nrPRBS(cinit_dmrs, dmrs_size)
 
