@@ -9,8 +9,7 @@ from py3gpp.configs.nrPDSCHConfig import nrPDSCHConfig
 from py3gpp.configs.nrCarrierConfig import nrCarrierConfig
 from py3gpp.nrPDSCHDMRS import PDSCHDMRSSyms
 
-def nrPDSCHPTRS(cfg: nrPDSCHConfig, carrier: nrCarrierConfig):
-    raise NotImplementedError("no ready yet")
+def nrPDSCHPTRS(carrier: nrCarrierConfig, cfg: nrPDSCHConfig):
     if cfg.EnablePTRS == 0:
         return []
 
@@ -28,17 +27,28 @@ def nrPDSCHPTRS(cfg: nrPDSCHConfig, carrier: nrCarrierConfig):
 
     occupied_syms = PDSCHDMRSSyms(cfg)
 
-    # Start generation for every symbol
+    # Generates first DMRS symbol (l0)
     n_symb = occupied_syms[0]
     cinit_dmrs = PDSCHPTRScinit(carrier.SymbolsPerSlot, carrier.NSlot, n_symb, cfg.DMRS.NIDNSCID, n_scid)
     dmrs_prbs = nrPRBS(cinit_dmrs, dmrs_size)
-
-    # Cut DMRS PRBS sequency
-    dmrs_prbs = dmrs_prbs[dmrs_begin:dmrs_end]
-    dmrs_syms = nrSymbolModulate(dmrs_prbs, "QPSK")
+    dmrs_sym = nrSymbolModulate(dmrs_prbs, "QPSK")
 
     # Form PTRS symbols from DMRS l0 sequency
-    # TODO
+    if cfg.DMRS.DMRSConfigurationType == 1:
+        kREref_table = [0, 2, 6, 8]
+    else:
+        kREref_table = [0, 1, 6, 7]
+    kREref = kREref_table[int(cfg.PTRS.REOffset, 2)]
+
+    Nrb_mod_Kptrs = len(cfg.PRBSet) % cfg.PTRS.FrequencyDensity
+    if Nrb_mod_Kptrs == 0:
+        kRBref = cfg.RNTI % cfg.PTRS.FrequencyDensity
+    else:
+        kRBref = cfg.RNTI % Nrb_mod_Kptrs
+
+    first_ptrs_idx = (cfg.NRBSize * kRBref) + kREref
+    step_ptrs = cfg.NRBSize * cfg.PTRS.FrequencyDensity
+    ptrs_sym = dmrs_sym[first_ptrs_idx::step_ptrs]
 
     return []
 
