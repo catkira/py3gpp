@@ -3,12 +3,13 @@ import os
 import itertools
 import numpy as np
 import pytest
+import time
 
-from py3gpp.nrPDSCHPTRSIndices import nrPDSCHPTRSIndices
+from py3gpp.nrPDSCHPTRS import nrPDSCHPTRS
 from py3gpp.configs.nrPDSCHConfig import nrPDSCHConfig
 from py3gpp.configs.nrCarrierConfig import nrCarrierConfig
 
-def run_nr_pdschptrs_indices(cfg, eng):
+def run_nr_pdschptrs(cfg, eng):
     carrier = nrCarrierConfig();
     carrier.SubcarrierSpacing = 120;
     carrier.CyclicPrefix = 'normal';
@@ -34,13 +35,12 @@ def run_nr_pdschptrs_indices(cfg, eng):
     pdsch_cfg.PTRS.FrequencyDensity = cfg['PTRSFrequencyDensity']
     pdsch_cfg.PTRS.REOffset = cfg['PTRSREOffset']
 
-    pdschptrs_indices = nrPDSCHPTRSIndices(carrier, pdsch_cfg)
+    pdschptrs_syms = nrPDSCHPTRS(carrier, pdsch_cfg)
 
-    [_,_,_, indices_ref] = eng.gen_pdschdmrs(cfg, nargout=4)
-    indices_ref = np.array(list(itertools.chain(*indices_ref)))
-    indices_ref = indices_ref - 1
+    [_,_,data_ref,_] = eng.gen_pdschdmrs(cfg, nargout=4)
+    data_ref = np.array(list(itertools.chain(*data_ref)))
 
-    assert np.array_equal(pdschptrs_indices, indices_ref)
+    assert np.array_equal(pdschptrs_syms, data_ref)
 
 
 @pytest.mark.parametrize('typeA_pos', [2, 3])
@@ -51,7 +51,7 @@ def run_nr_pdschptrs_indices(cfg, eng):
 @pytest.mark.parametrize('PTRSREOffset', ['00', '01', '10', '11'])
 @pytest.mark.parametrize('PTRSFrequencyDensity', [2, 4])
 @pytest.mark.parametrize('PTRSTimeDensity', [1, 2, 4])
-def test_nr_pdschptrs_indices(typeA_pos, symb_alloc, dmrs_add_pos, PRBSet, dmrs_cfg_type, PTRSREOffset, PTRSFrequencyDensity, PTRSTimeDensity):
+def test_nr_pdschptrs(typeA_pos, symb_alloc, dmrs_add_pos, PRBSet, dmrs_cfg_type, PTRSREOffset, PTRSFrequencyDensity, PTRSTimeDensity):
     eng = matlab.engine.connect_matlab()
     eng.cd(os.path.dirname(__file__))
 
@@ -74,9 +74,11 @@ def test_nr_pdschptrs_indices(typeA_pos, symb_alloc, dmrs_add_pos, PRBSet, dmrs_
     cfg['PTRSREOffset'] = PTRSREOffset
 
     try:
-        run_nr_pdschptrs_indices(cfg, eng)
+        run_nr_pdschptrs(cfg, eng)
     finally:
         eng.quit()
+        # MATLAB hangs in case too fast requests
+        time.sleep(100/1000.0)
 
 if __name__ == '__main__':
-    test_nr_pdschptrs_indices(3, [2, 12], 0, list(range(6, 132)))
+    test_nr_pdschptrs(3, [2, 12], 0, list(range(60, 100)), 1, '01', 2, 1)
