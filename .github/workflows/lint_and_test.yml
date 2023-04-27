@@ -3,9 +3,13 @@ name: CI
 on:
   push:
   pull_request:
+  release:
+    types: [created]
 
 jobs:
   lint:
+    if: github.ref == 'refs/heads/master'
+
     permissions:
       pages: write
       id-token: write
@@ -74,6 +78,8 @@ jobs:
           pytest --ignore=tests/matlab tests/ -n auto
 
   pypi:
+    if: github.event_name == 'release' && github.event.action == 'created'
+
     needs: build  
     runs-on: ubuntu-latest
   
