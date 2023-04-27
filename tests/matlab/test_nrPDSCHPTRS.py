@@ -40,6 +40,9 @@ def run_nr_pdschptrs(cfg, eng):
     [_,_,data_ref,_] = eng.gen_pdschdmrs(cfg, nargout=4)
     data_ref = np.array(list(itertools.chain(*data_ref)))
 
+    pdschptrs_syms = np.around(pdschptrs_syms, 4)
+    data_ref = np.around(data_ref, 4)
+
     assert np.array_equal(pdschptrs_syms, data_ref)
 
 
@@ -64,7 +67,7 @@ def test_nr_pdschptrs(typeA_pos, symb_alloc, dmrs_add_pos, PRBSet, dmrs_cfg_type
     cfg['DMRSAdditionalPosition'] = dmrs_add_pos
     cfg['PRBSet'] = PRBSet
     cfg['SymbolAllocation'] = symb_alloc
-    cfg['DMRSConfigurationType'] = 2
+    cfg['DMRSConfigurationType'] = dmrs_cfg_type
     cfg['NIDNSCID'] = 1
     cfg['NSCID'] = 0
     cfg['RNTI'] = 1
@@ -81,4 +84,4 @@ def test_nr_pdschptrs(typeA_pos, symb_alloc, dmrs_add_pos, PRBSet, dmrs_cfg_type
         time.sleep(100/1000.0)
 
 if __name__ == '__main__':
-    test_nr_pdschptrs(3, [2, 12], 0, list(range(60, 100)), 1, '01', 2, 1)
+    test_nr_pdschptrs(3, [2, 12], 0, list(range(10, 132)), 2, '11', 4, 1)

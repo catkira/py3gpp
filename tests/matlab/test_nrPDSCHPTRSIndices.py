@@ -3,6 +3,7 @@ import os
 import itertools
 import numpy as np
 import pytest
+import time
 
 from py3gpp.nrPDSCHPTRSIndices import nrPDSCHPTRSIndices
 from py3gpp.configs.nrPDSCHConfig import nrPDSCHConfig
@@ -64,7 +65,7 @@ def test_nr_pdschptrs_indices(typeA_pos, symb_alloc, dmrs_add_pos, PRBSet, dmrs_
     cfg['DMRSAdditionalPosition'] = dmrs_add_pos
     cfg['PRBSet'] = PRBSet
     cfg['SymbolAllocation'] = symb_alloc
-    cfg['DMRSConfigurationType'] = 2
+    cfg['DMRSConfigurationType'] = dmrs_cfg_type
     cfg['NIDNSCID'] = 1
     cfg['NSCID'] = 0
     cfg['RNTI'] = 1
@@ -77,6 +78,8 @@ def test_nr_pdschptrs_indices(typeA_pos, symb_alloc, dmrs_add_pos, PRBSet, dmrs_
         run_nr_pdschptrs_indices(cfg, eng)
     finally:
         eng.quit()
+        # MATLAB hangs in case too fast requests
+        time.sleep(100/1000.0)
 
 if __name__ == '__main__':
-    test_nr_pdschptrs_indices(3, [2, 12], 0, list(range(6, 132)))
+    test_nr_pdschptrs_indices(2, [2, 12], 3, list(range(0, 132)), 1, '00', 2, 4)
