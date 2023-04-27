@@ -3,3 +3,4 @@
 pylint
 anybadge
 pytest
+pytest-xdist

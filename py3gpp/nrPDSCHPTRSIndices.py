@@ -28,7 +28,6 @@ def nrPDSCHPTRSIndices(carrier: nrCarrierConfig, cfg: nrPDSCHConfig):
     else:
         kRBref = cfg.RNTI % Nrb_mod_Kptrs
     kRBref *= cfg.NRBSize
-    # print(kRBref, kREref)
 
     # Move to BWP offset and the rest frequency offsets
     ptrs_begin = frame_begin + kREref + kRBref
@@ -36,15 +35,13 @@ def nrPDSCHPTRSIndices(carrier: nrCarrierConfig, cfg: nrPDSCHConfig):
     # Calculate PTRS positions in every occupied symbol. Frequency position,
     # for every 2 or 4 RBs
     occupied_res = np.array(list(range(ptrs_begin, frame_end, (cfg.PTRS.FrequencyDensity*12))))
-    # print(occupied_res)
 
     # Calculates occupied symbols numbers. Time positions
     occupied_syms = PDSCHPTRSSyms(carrier, cfg)
-    # print(occupied_syms)
 
-    ptrs_indices = np.array([])
-    for idx, sym in enumerate(occupied_syms):
-        sym_offset = sym*frame_size
-        ptrs_indices = np.append(ptrs_indices, (occupied_res + sym_offset))
+    # Move PTRS indices to occupied symbols
+    ptrs_indices = np.array([occupied_res+(sym*frame_size) for sym in occupied_syms])
+    if len(ptrs_indices) > 0:
+        ptrs_indices = np.concatenate(ptrs_indices, axis=None)
 
     return ptrs_indices
