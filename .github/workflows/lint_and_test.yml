@@ -71,7 +71,7 @@ jobs:
           pip install -e .          
       - name: Test with pytest
         run: |
-          pytest --ignore=tests/matlab tests/
+          pytest --ignore=tests/matlab tests/ -n auto
 
   pypi:
     needs: build  
