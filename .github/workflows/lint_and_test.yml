@@ -6,6 +6,8 @@ on:
 
 jobs:
   lint:
+    if: github.ref == 'refs/heads/master'
+
     permissions:
       pages: write
       id-token: write
