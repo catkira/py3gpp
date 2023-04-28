@@ -8,7 +8,7 @@ on:
 
 jobs:
   lint:
-    if: github.event_name == 'release' && github.event.action == 'created'
+    if: github.ref == 'refs/heads/master'
 
     permissions:
       pages: write
