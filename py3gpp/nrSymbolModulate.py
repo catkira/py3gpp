@@ -56,4 +56,4 @@ def nrSymbolModulate(databits, modulation):
             res_arr[idx] = ( (1-2*sample[0]) * (8-(1-2*sample[2]) * (4-(1-2*sample[4]) * (2-(1-2*sample[6])))) ) + 1j*( (1-2*sample[1]) * (8-(1-2*sample[3]) * (4-(1-2*sample[5]) * (2-(1-2*sample[7])))) )
         res_arr = [x/np.sqrt(170) for x in res_arr]
 
-    return res_arr
+    return np.array(res_arr)

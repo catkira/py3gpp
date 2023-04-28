@@ -1,12 +1,13 @@
 from .nrNumerologyConfig import nrNumerologyConfig
 
 class nrCarrierConfig(nrNumerologyConfig):
-        def __init__(self):
-            self._NCellID = 1
-            self._NSizeGrid = 52
-            self._NStartGrid = 0
-            self._NSlot = 0
-            self._NFrame = 0
+        def __init__(self, NCellID = 1, NSizeGrid = 52, NStartGrid = 0, NSlot = 0, NFrame = 0, SubcarrierSpacing = 15):
+            self._NCellID = NCellID
+            self._NSizeGrid = NSizeGrid
+            self._NStartGrid = NStartGrid
+            self._NSlot = NSlot
+            self._NFrame = NFrame
+            self.SubcarrierSpacing = SubcarrierSpacing
 
         @property
         def SymbolsPerSlot(self):
