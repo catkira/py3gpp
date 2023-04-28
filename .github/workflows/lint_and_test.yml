@@ -78,7 +78,7 @@ jobs:
           pytest --ignore=tests/matlab tests/ -n auto
 
   pypi:
-    if: github.event_name == 'release' && github.event.action == 'created'
+    if: github.ref == 'refs/heads/master'
 
     needs: build  
     runs-on: ubuntu-latest
