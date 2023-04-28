@@ -16,10 +16,10 @@ jobs:
 
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}  
+      url: ${{ steps.deployment.outputs.page_url }}
 
     runs-on: ubuntu-latest
-  
+
     steps:
       - uses: actions/checkout@v3
 
@@ -72,17 +72,17 @@ jobs:
           pip install -r requirements.txt
           pip install build
           python3 -m build
-          pip install -e .          
+          pip install -e .
       - name: Test with pytest
         run: |
           pytest --ignore=tests/matlab tests/ -n auto
 
   pypi:
-    if: github.ref == 'refs/heads/master'
+    if: github.event_name == 'release' && github.event.action == 'created'
 
-    needs: build  
+    needs: build
     runs-on: ubuntu-latest
-  
+
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python 3.10
