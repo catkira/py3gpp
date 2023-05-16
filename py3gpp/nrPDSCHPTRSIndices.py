@@ -34,7 +34,7 @@ def nrPDSCHPTRSIndices(carrier: nrCarrierConfig, cfg: nrPDSCHConfig):
 
     # Calculate PTRS positions in every occupied symbol. Frequency position,
     # for every 2 or 4 RBs
-    occupied_res = np.array(list(range(ptrs_begin, frame_end, (cfg.PTRS.FrequencyDensity*12))))
+    occupied_res = np.array(list(range(ptrs_begin, frame_end, (cfg.PTRS.FrequencyDensity*cfg.NRBSize))))
 
     # Calculates occupied symbols numbers. Time positions
     occupied_syms = PDSCHPTRSSyms(carrier, cfg)

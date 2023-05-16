@@ -7,7 +7,7 @@ import pytest
 from py3gpp.nrPDSCHDMRSIndices import nrPDSCHDMRSIndices
 from py3gpp.configs.nrPDSCHConfig import nrPDSCHConfig
 
-def run_nr_pdschdmrs(cfg, eng):
+def run_nr_pdschdmrs_indices(cfg, eng):
     pdsch_cfg = nrPDSCHConfig();
     pdsch_cfg.NSizeBWP = cfg['n_size_bwp']
     pdsch_cfg.NStartBWP = cfg['n_start_bwp']
@@ -35,7 +35,7 @@ def run_nr_pdschdmrs(cfg, eng):
 @pytest.mark.parametrize('dmrs_add_pos', [0, 1, 2, 3])
 @pytest.mark.parametrize('PRBSet', [list(range(0, 132)), list(range(60, 132)), list(range(30, 60))])
 @pytest.mark.parametrize('dmrs_cfg_type', [1, 2])
-def test_nr_pdschdmrs(symb_alloc, dmrs_add_pos, typeA_pos, PRBSet, dmrs_cfg_type):
+def test_nr_pdschdmrs_indices(symb_alloc, dmrs_add_pos, typeA_pos, PRBSet, dmrs_cfg_type):
     eng = matlab.engine.connect_matlab()
     eng.cd(os.path.dirname(__file__))
 
@@ -54,7 +54,7 @@ def test_nr_pdschdmrs(symb_alloc, dmrs_add_pos, typeA_pos, PRBSet, dmrs_cfg_type
     cfg['EnablePTRS'] = 0
 
     try:
-        run_nr_pdschdmrs(cfg, eng)
+        run_nr_pdschdmrs_indices(cfg, eng)
     finally:
         eng.quit()
 
