@@ -10,47 +10,33 @@ def get_bin_symbols(bps, symbols):
     databits = np.array([(x & (2**np.arange(bps)) != 0).astype(int) for x in databits])
     return np.concatenate(databits, axis=0)
 
-def run_nr_mapper(eng, modtype):
-    if modtype == 'bpsk':
-        databits = get_bin_symbols(1, 2)
-        ref_data = eng.nrSymbolModulate(eng.transpose(eng.logical(databits)), "BPSK")
-        data = nrSymbolModulate(databits, modtype)
-
-    elif modtype == 'bpsk_pi2':
-        databits = get_bin_symbols(1, 2)
-        ref_data = eng.nrSymbolModulate(eng.transpose(eng.logical(databits)), "pi/2-BPSK")
-        data = nrSymbolModulate(databits, modtype)
-
-    elif modtype == 'qpsk':
-        databits = get_bin_symbols(2, 4)
-        ref_data = eng.nrSymbolModulate(eng.transpose(eng.logical(databits)), "QPSK")
-        data = nrSymbolModulate(databits, modtype)
-
-    elif modtype == 'qam16':
-        databits = get_bin_symbols(4, 16)
-        ref_data = eng.nrSymbolModulate(eng.transpose(eng.logical(databits)), "16QAM")
-        data = nrSymbolModulate(databits, modtype)
-
-    elif modtype == 'qam64':
-        databits = get_bin_symbols(6, 64)
-        ref_data = eng.nrSymbolModulate(eng.transpose(eng.logical(databits)), "64QAM")
-        data = nrSymbolModulate(databits, modtype)
-
-    elif modtype == 'qam256':
-        databits = get_bin_symbols(8, 256)
-        ref_data = eng.nrSymbolModulate(eng.transpose(eng.logical(databits)), "256QAM")
-        data = nrSymbolModulate(databits, modtype)
-
+def run_nr_mapper(databits, modtype, eng):
+    ref_data = eng.nrSymbolModulate(eng.transpose(eng.logical(databits)), modtype)
     ref_data = np.around(np.array(list(itertools.chain(*ref_data))), 4)
+
+    data = nrSymbolModulate(databits, modtype)
     data = np.around(data, 4)
 
     assert (ref_data == data).all()
 
-@pytest.mark.parametrize("modtype", ['bpsk', 'bpsk_pi2', 'qpsk', 'qam16', 'qam64', 'qam256'])
+@pytest.mark.parametrize("modtype", ["BPSK", "pi/2-BPSK", "QPSK", "16QAM", "64QAM", "256QAM"])
 def test_nr_pbch(modtype):
     eng = matlab.engine.connect_matlab()
 
+    if modtype == "BPSK":
+        databits = get_bin_symbols(1, 2)
+    elif modtype == "pi/2-BPSK":
+        databits = get_bin_symbols(1, 2)
+    elif modtype == "QPSK":
+        databits = get_bin_symbols(2, 4)
+    elif modtype == "16QAM":
+        databits = get_bin_symbols(4, 16)
+    elif modtype == "64QAM":
+        databits = get_bin_symbols(6, 64)
+    elif modtype == "256QAM":
+        databits = get_bin_symbols(8, 256)
+
     try:
-        run_nr_mapper(eng, modtype)
+        run_nr_mapper(databits, modtype, eng)
     finally:
         eng.quit()
