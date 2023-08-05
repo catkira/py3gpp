@@ -52,21 +52,21 @@ def nrOFDMModulate(
         N_cp2 = N_cp1
 
     sample_pos_in_slot = 0
-    for slot_num in range(nSlots):
-        slot_num = (slot_num + initialNSlot) % carrier.SymbolsPerSlot
-        if slot_num == 0 or slot_num == 7 * 2 ** (mu):
+    for sym_pos_in_slot in range(nSlots):
+        sym_pos_in_slot = (sym_pos_in_slot + initialNSlot) % carrier.SymbolsPerSlot
+        if sym_pos_in_slot == 0 or sym_pos_in_slot == 7 * 2 ** (mu):
             N_cp = N_cp1
         else:
             N_cp = N_cp2
         symbol_len = Nfft + N_cp
         nFill = (Nfft - grid.shape[0]) // 2
         if nFill < 0:
-            full_slot_grid = grid[np.abs(nFill) :, slot_num][:nFill]
+            full_slot_grid = grid[np.abs(nFill) :, sym_pos_in_slot][:nFill]
         else:
-            full_slot_grid = np.concatenate([np.zeros(nFill), grid[:, slot_num], np.zeros(nFill)])
+            full_slot_grid = np.concatenate([np.zeros(nFill), grid[:, sym_pos_in_slot], np.zeros(nFill)])
 
         # phase compensation according to TS 38.211 section 5.4
-        if slot_num == 0:
+        if sym_pos_in_slot == 0:
             sample_pos_in_slot = 0
         sample_pos_in_slot += N_cp
         full_slot_grid *= np.exp(-1j * 2 * np.pi * CarrierFrequency / SampleRate * sample_pos_in_slot)

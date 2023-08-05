@@ -49,13 +49,13 @@ def nrOFDMDemodulate(
         N_cp2 = N_cp1
 
     idx = 0
-    slot = initialNSlot
+    sym_pos_in_slot = initialNSlot
     grid = np.zeros((nrb * 12, 0), "complex")
     sample_pos_in_slot = 0
     symbols_per_slot = carrier.SymbolsPerSlot
     while idx + Nfft <= waveform.shape[0]:
-        slot = slot % symbols_per_slot
-        if slot == 0 or slot == 7 * 2 ** (mu):
+        sym_pos_in_slot = sym_pos_in_slot % symbols_per_slot
+        if sym_pos_in_slot == 0 or sym_pos_in_slot == 7 * 2 ** (mu):
             N_cp = N_cp1
         else:
             N_cp = N_cp2
@@ -70,7 +70,7 @@ def nrOFDMDemodulate(
         symbol_f = symbol_f[Nfft // 2 - nrb * 12 // 2 : Nfft // 2 + nrb * 12 // 2]
 
         # phase compensation according to TS 38.211 section 5.4
-        if slot == 0:
+        if sym_pos_in_slot == 0:
             sample_pos_in_slot = 0
         sample_pos_in_slot += N_cp
         symbol_f *= np.exp(1j * 2 * np.pi * CarrierFrequency / SampleRate * sample_pos_in_slot)
@@ -79,5 +79,5 @@ def nrOFDMDemodulate(
         grid = np.concatenate((grid, np.expand_dims(symbol_f, 1)), axis=1)
         idx += Nfft + (N_cp - cp_advance)
         # print(f'slot {slot}, cp_len {N_cp}')
-        slot = slot + 1
+        sym_pos_in_slot = sym_pos_in_slot + 1
     return grid
