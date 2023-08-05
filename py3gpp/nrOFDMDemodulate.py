@@ -48,6 +48,7 @@ def nrOFDMDemodulate(
     idx = 0
     slot = 0
     grid = np.zeros((nrb * 12, 0), "complex")
+    sample_pos_in_slot = 0
     while idx + Nfft < waveform.shape[0]:
         if slot == 0 or slot == 7 * 2 ** (mu):
             cp = N_cp1
@@ -56,6 +57,7 @@ def nrOFDMDemodulate(
         slot = (slot + 1) % (7 * 2 ** (mu))
         cp_advance = int(CyclicPrefixFraction * cp)
         idx += cp_advance
+        sample_pos_in_slot += cp
         symbol_t = waveform[idx:][:Nfft]
         symbol_f = np.fft.fftshift(np.fft.fft(symbol_t))
 
@@ -63,6 +65,8 @@ def nrOFDMDemodulate(
         symbol_f *= np.exp(1j*np.pi*(cp - cp_advance))
 
         symbol_f = symbol_f[Nfft // 2 - nrb * 12 // 2 : Nfft // 2 + nrb * 12 // 2]
+        symbol_f *= np.exp(1j * 2 * np.pi * CarrierFrequency / SampleRate * sample_pos_in_slot)
         grid = np.concatenate((grid, np.expand_dims(symbol_f, 1)), axis=1)
         idx += Nfft + (cp - cp_advance)
+        sample_pos_in_slot += Nfft
     return grid

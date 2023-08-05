@@ -4,7 +4,8 @@ from py3gpp.nrOFDMInfo import nrOFDMInfo
 
 # TODO: implement windowing
 def nrOFDMModulate(
-    carrier=None, grid=None, scs=None, initialNSlot=0, CyclicPrefix="normal", Nfft=None, SampleRate=None, Windowing=None
+    carrier=None, grid=None, scs=None, initialNSlot=0, CyclicPrefix="normal", Nfft=None,
+    SampleRate=None, Windowing=None, CarrierFrequency=0
 ):
     info = {}
 
