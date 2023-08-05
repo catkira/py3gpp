@@ -31,6 +31,7 @@ def nrOFDMDemodulate(
         nrb = carrier.NSizeGrid
         scs = carrier.SubcarrierSpacing
         initialNSlot = 0
+        
     if Nfft == None:
         if SampleRate == None:
             Nfft = nrOFDMInfo(nrb=nrb, scs=scs)["Nfft"]
@@ -46,7 +47,7 @@ def nrOFDMDemodulate(
         N_cp2 = N_cp1
 
     idx = 0
-    slot = 0
+    slot = initialNSlot
     grid = np.zeros((nrb * 12, 0), "complex")
     sample_pos_in_slot = 0
     while idx + Nfft < waveform.shape[0]:
@@ -65,7 +66,10 @@ def nrOFDMDemodulate(
         symbol_f *= np.exp(1j*np.pi*(cp - cp_advance))
 
         symbol_f = symbol_f[Nfft // 2 - nrb * 12 // 2 : Nfft // 2 + nrb * 12 // 2]
+
+        # phase compensation according to TS 38.211 section 5.4
         symbol_f *= np.exp(1j * 2 * np.pi * CarrierFrequency / SampleRate * sample_pos_in_slot)
+
         grid = np.concatenate((grid, np.expand_dims(symbol_f, 1)), axis=1)
         idx += Nfft + (cp - cp_advance)
         sample_pos_in_slot += Nfft
