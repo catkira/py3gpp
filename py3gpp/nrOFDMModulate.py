@@ -19,7 +19,7 @@ def nrOFDMModulate(
     else:
         NSizeGrid = carrier.NSizeGrid
         if initialNSlot is None:
-            initialNSlot = carrier.nSlot
+            initialNSlot = carrier.NSlot
         
     if initialNSlot is None:
         initialNSlot = 0
@@ -42,7 +42,7 @@ def nrOFDMModulate(
     info["SymbolLengths"] = np.empty(0, "int")
     if len(grid.shape) == 1:
         grid = grid[..., np.newaxis]
-    nSlots = grid.shape[1] + initialNSlot
+    nSlots = grid.shape[1]
     waveform = np.empty(0, "complex")
     if CyclicPrefix == "normal":
         N_cp1 = int(((144) * 2 ** (-mu) + 16) * (SampleRate / 30720000))
@@ -51,8 +51,9 @@ def nrOFDMModulate(
         N_cp1 = int((512 * 2 ** (-mu)) * (SampleRate / 30720000))
         N_cp2 = N_cp1
 
-    sample_pos = 0
+    sample_pos_in_slot = 0
     for slot_num in range(nSlots):
+        slot_num = np.mod(slot_num + initialNSlot, carrier.SymbolsPerSlot)
         if slot_num == 0 or slot_num == 7 * 2 ** (mu):
             N_cp = N_cp1
         else:
@@ -65,9 +66,11 @@ def nrOFDMModulate(
             full_slot_grid = np.concatenate([np.zeros(nFill), grid[:, slot_num], np.zeros(nFill)])
 
         # phase compensation according to TS 38.211 section 5.4
-        sample_pos += N_cp
-        full_slot_grid *= np.exp(1j * 2 * np.pi * CarrierFrequency / SampleRate * sample_pos)
-        sample_pos += Nfft
+        if slot_num == 0:
+            sample_pos_in_slot = 0
+        sample_pos_in_slot += N_cp
+        full_slot_grid *= np.exp(-1j * 2 * np.pi * CarrierFrequency / SampleRate * sample_pos_in_slot)
+        sample_pos_in_slot += Nfft
         
         symbol_waveform = np.fft.ifft(np.fft.fftshift(full_slot_grid))
         symbol_waveform_cp = np.append(symbol_waveform[-N_cp:], symbol_waveform)
