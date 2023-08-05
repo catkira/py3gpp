@@ -53,7 +53,7 @@ def nrOFDMModulate(
 
     sample_pos_in_slot = 0
     for slot_num in range(nSlots):
-        slot_num = np.mod(slot_num + initialNSlot, carrier.SymbolsPerSlot)
+        slot_num = (slot_num + initialNSlot) % carrier.SymbolsPerSlot
         if slot_num == 0 or slot_num == 7 * 2 ** (mu):
             N_cp = N_cp1
         else:
@@ -77,4 +77,5 @@ def nrOFDMModulate(
         waveform = np.append(waveform, symbol_waveform_cp)
         info["CyclicPrefixLengths"] = np.append(info["CyclicPrefixLengths"], N_cp)
         info["SymbolLengths"] = np.append(info["SymbolLengths"], symbol_len)
+        # print(f'slot {slot_num}, cp_len {N_cp}')
     return [waveform, info]

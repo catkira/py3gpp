@@ -1,5 +1,6 @@
 import numpy as np
 from py3gpp.nrOFDMInfo import nrOFDMInfo
+from py3gpp.configs.nrCarrierConfig import nrCarrierConfig
 
 # TODO: implement CyclicPrefixFraction
 def nrOFDMDemodulate(
@@ -27,6 +28,7 @@ def nrOFDMDemodulate(
         if initialNSlot == None:
             print("Error: initialNSlot is needed without carrierConfig!")
             return
+        carrier = nrCarrierConfig(1, NSizeGrid = nrb, NStartGrid = 0, SubcarrierSpacing = scs)
     else:
         nrb = carrier.NSizeGrid
         scs = carrier.SubcarrierSpacing
@@ -50,30 +52,32 @@ def nrOFDMDemodulate(
     slot = initialNSlot
     grid = np.zeros((nrb * 12, 0), "complex")
     sample_pos_in_slot = 0
-    symbols_per_slot = (7 * 2 ** (mu))
-    while idx + Nfft < waveform.shape[0]:
+    symbols_per_slot = carrier.SymbolsPerSlot
+    while idx + Nfft <= waveform.shape[0]:
+        slot = slot % symbols_per_slot
         if slot == 0 or slot == 7 * 2 ** (mu):
-            cp = N_cp1
+            N_cp = N_cp1
         else:
-            cp = N_cp2
-        slot = (slot + 1) % symbols_per_slot
-        cp_advance = int(CyclicPrefixFraction * cp)
+            N_cp = N_cp2
+        cp_advance = int(CyclicPrefixFraction * N_cp)
         idx += cp_advance
         symbol_t = waveform[idx:][:Nfft]
         symbol_f = np.fft.fftshift(np.fft.fft(symbol_t))
 
-        symbol_f *= np.exp(1j*2*np.pi*(cp - cp_advance)/Nfft*np.arange(len(symbol_f)))
-        symbol_f *= np.exp(1j*np.pi*(cp - cp_advance))
+        symbol_f *= np.exp(1j*2*np.pi*(N_cp - cp_advance)/Nfft*np.arange(len(symbol_f)))
+        symbol_f *= np.exp(1j*np.pi*(N_cp - cp_advance))
 
         symbol_f = symbol_f[Nfft // 2 - nrb * 12 // 2 : Nfft // 2 + nrb * 12 // 2]
 
         # phase compensation according to TS 38.211 section 5.4
         if slot == 0:
             sample_pos_in_slot = 0
-        sample_pos_in_slot += cp
+        sample_pos_in_slot += N_cp
         symbol_f *= np.exp(1j * 2 * np.pi * CarrierFrequency / SampleRate * sample_pos_in_slot)
         sample_pos_in_slot += Nfft
 
         grid = np.concatenate((grid, np.expand_dims(symbol_f, 1)), axis=1)
-        idx += Nfft + (cp - cp_advance)
+        idx += Nfft + (N_cp - cp_advance)
+        # print(f'slot {slot}, cp_len {N_cp}')
+        slot = slot + 1
     return grid
