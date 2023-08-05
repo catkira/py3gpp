@@ -2,6 +2,7 @@ from .nrNumerologyConfig import nrNumerologyConfig
 
 class nrCarrierConfig(nrNumerologyConfig):
         def __init__(self, NCellID = 1, NSizeGrid = 52, NStartGrid = 0, NSlot = 0, NFrame = 0, SubcarrierSpacing = 15):
+            super().__init__()
             self._NCellID = NCellID
             self._NSizeGrid = NSizeGrid
             self._NStartGrid = NStartGrid

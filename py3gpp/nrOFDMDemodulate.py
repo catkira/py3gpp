@@ -1,5 +1,6 @@
 import numpy as np
 from py3gpp.nrOFDMInfo import nrOFDMInfo
+from py3gpp.configs.nrCarrierConfig import nrCarrierConfig
 
 # TODO: implement CyclicPrefixFraction
 def nrOFDMDemodulate(
@@ -27,10 +28,12 @@ def nrOFDMDemodulate(
         if initialNSlot == None:
             print("Error: initialNSlot is needed without carrierConfig!")
             return
+        carrier = nrCarrierConfig(1, NSizeGrid = nrb, NStartGrid = 0, SubcarrierSpacing = scs, initialNSlot = initialNSlot)
     else:
         nrb = carrier.NSizeGrid
         scs = carrier.SubcarrierSpacing
-        initialNSlot = 0
+        initialNSlot = 0 if initialNSlot is None else initialNSlot
+        
     if Nfft == None:
         if SampleRate == None:
             Nfft = nrOFDMInfo(nrb=nrb, scs=scs)["Nfft"]
@@ -44,25 +47,40 @@ def nrOFDMDemodulate(
     else:
         N_cp1 = int((512 * 2 ** (-mu)) * (SampleRate / 30720000))
         N_cp2 = N_cp1
+    N_cp = np.zeros(carrier.SymbolsPerSlot, dtype=int)
+    for i in range(len(N_cp)):
+        N_cp[i] = N_cp1 if i == 0 or i == 7 * 2 ** (mu) else N_cp2
 
     idx = 0
-    slot = 0
+    sym_pos_in_slot = initialNSlot
     grid = np.zeros((nrb * 12, 0), "complex")
-    while idx + Nfft < waveform.shape[0]:
-        if slot == 0 or slot == 7 * 2 ** (mu):
-            cp = N_cp1
-        else:
-            cp = N_cp2
-        slot = (slot + 1) % (7 * 2 ** (mu))
-        cp_advance = int(CyclicPrefixFraction * cp)
+
+    sample_pos_in_slot = 0
+    for i in range(initialNSlot):
+        sample_pos_in_slot += Nfft + N_cp[i]
+
+    symbols_per_slot = carrier.SymbolsPerSlot
+    while idx + Nfft <= waveform.shape[0]:
+        sym_pos_in_slot = sym_pos_in_slot % symbols_per_slot
+        cp_advance = int(CyclicPrefixFraction * N_cp[sym_pos_in_slot])
         idx += cp_advance
         symbol_t = waveform[idx:][:Nfft]
         symbol_f = np.fft.fftshift(np.fft.fft(symbol_t))
 
-        symbol_f *= np.exp(1j*2*np.pi*(cp - cp_advance)/Nfft*np.arange(len(symbol_f)))
-        symbol_f *= np.exp(1j*np.pi*(cp - cp_advance))
+        symbol_f *= np.exp(1j*2*np.pi*(N_cp[sym_pos_in_slot] - cp_advance)/Nfft*np.arange(len(symbol_f)))
+        symbol_f *= np.exp(1j*np.pi*(N_cp[sym_pos_in_slot] - cp_advance))
 
         symbol_f = symbol_f[Nfft // 2 - nrb * 12 // 2 : Nfft // 2 + nrb * 12 // 2]
+
+        # phase compensation according to TS 38.211 section 5.4
+        if sym_pos_in_slot == 0:
+            sample_pos_in_slot = 0
+        sample_pos_in_slot += N_cp[sym_pos_in_slot]
+        symbol_f *= np.exp(1j * 2 * np.pi * CarrierFrequency / SampleRate * sample_pos_in_slot)
+        sample_pos_in_slot += Nfft
+
         grid = np.concatenate((grid, np.expand_dims(symbol_f, 1)), axis=1)
-        idx += Nfft + (cp - cp_advance)
+        idx += Nfft + (N_cp[sym_pos_in_slot] - cp_advance)
+        # print(f'slot {slot}, cp_len {N_cp}')
+        sym_pos_in_slot = sym_pos_in_slot + 1
     return grid
