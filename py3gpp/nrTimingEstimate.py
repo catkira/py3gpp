@@ -15,9 +15,10 @@ def nrTimingEstimate(
     CyclicPrefix="normal",
     Nfft=None,
     SampleRate=None,
+    CarrierFrequency=None
 ):
     refWaveform, _ = nrOFDMModulate(
-        grid=refGrid, scs=scs, initialNSlot=initialNSlot, SampleRate=SampleRate, Nfft=Nfft, carrier=carrier
+        grid=refGrid, scs=scs, initialNSlot=initialNSlot, SampleRate=SampleRate, Nfft=Nfft, carrier=carrier, CarrierFrequency=CarrierFrequency
     )
     xcorr = scipy.signal.correlate(waveform, refWaveform, "valid")
     index = np.argmax(np.abs(xcorr))
