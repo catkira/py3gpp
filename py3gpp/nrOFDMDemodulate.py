@@ -28,7 +28,7 @@ def nrOFDMDemodulate(
         if initialNSlot == None:
             print("Error: initialNSlot is needed without carrierConfig!")
             return
-        carrier = nrCarrierConfig(1, NSizeGrid = nrb, NStartGrid = 0, SubcarrierSpacing = scs, initialNSlot = initialNSlot)
+        carrier = nrCarrierConfig(1, NSizeGrid = nrb, NStartGrid = 0, SubcarrierSpacing = scs, NSlot = initialNSlot)
     else:
         nrb = carrier.NSizeGrid
         scs = carrier.SubcarrierSpacing
