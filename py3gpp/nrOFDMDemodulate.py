@@ -47,6 +47,9 @@ def nrOFDMDemodulate(
     else:
         N_cp1 = int((512 * 2 ** (-mu)) * (SampleRate / 30720000))
         N_cp2 = N_cp1
+    N_cp = np.zeros(carrier.SymbolsPerSlot, dtype=int)
+    for i in range(len(N_cp)):
+        N_cp[i] = N_cp1 if i == 0 or i == 7 * 2 ** (mu) else N_cp2
 
     idx = 0
     sym_pos_in_slot = initialNSlot
@@ -55,29 +58,25 @@ def nrOFDMDemodulate(
     symbols_per_slot = carrier.SymbolsPerSlot
     while idx + Nfft <= waveform.shape[0]:
         sym_pos_in_slot = sym_pos_in_slot % symbols_per_slot
-        if sym_pos_in_slot == 0 or sym_pos_in_slot == 7 * 2 ** (mu):
-            N_cp = N_cp1
-        else:
-            N_cp = N_cp2
-        cp_advance = int(CyclicPrefixFraction * N_cp)
+        cp_advance = int(CyclicPrefixFraction * N_cp[sym_pos_in_slot])
         idx += cp_advance
         symbol_t = waveform[idx:][:Nfft]
         symbol_f = np.fft.fftshift(np.fft.fft(symbol_t))
 
-        symbol_f *= np.exp(1j*2*np.pi*(N_cp - cp_advance)/Nfft*np.arange(len(symbol_f)))
-        symbol_f *= np.exp(1j*np.pi*(N_cp - cp_advance))
+        symbol_f *= np.exp(1j*2*np.pi*(N_cp[sym_pos_in_slot] - cp_advance)/Nfft*np.arange(len(symbol_f)))
+        symbol_f *= np.exp(1j*np.pi*(N_cp[sym_pos_in_slot] - cp_advance))
 
         symbol_f = symbol_f[Nfft // 2 - nrb * 12 // 2 : Nfft // 2 + nrb * 12 // 2]
 
         # phase compensation according to TS 38.211 section 5.4
         if sym_pos_in_slot == 0:
             sample_pos_in_slot = 0
-        sample_pos_in_slot += N_cp
+        sample_pos_in_slot += N_cp[sym_pos_in_slot]
         symbol_f *= np.exp(1j * 2 * np.pi * CarrierFrequency / SampleRate * sample_pos_in_slot)
         sample_pos_in_slot += Nfft
 
         grid = np.concatenate((grid, np.expand_dims(symbol_f, 1)), axis=1)
-        idx += Nfft + (N_cp - cp_advance)
+        idx += Nfft + (N_cp[sym_pos_in_slot] - cp_advance)
         # print(f'slot {slot}, cp_len {N_cp}')
         sym_pos_in_slot = sym_pos_in_slot + 1
     return grid

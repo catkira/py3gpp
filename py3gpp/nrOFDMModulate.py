@@ -50,15 +50,14 @@ def nrOFDMModulate(
     else:
         N_cp1 = int((512 * 2 ** (-mu)) * (SampleRate / 30720000))
         N_cp2 = N_cp1
+    N_cp = np.zeros(carrier.SymbolsPerSlot, dtype=int)
+    for i in range(len(N_cp)):
+        N_cp[i] = N_cp1 if i == 0 or i == 7 * 2 ** (mu) else N_cp2
 
     sample_pos_in_slot = 0
     for sym_pos_in_slot in range(nSlots):
         sym_pos_in_slot = (sym_pos_in_slot + initialNSlot) % carrier.SymbolsPerSlot
-        if sym_pos_in_slot == 0 or sym_pos_in_slot == 7 * 2 ** (mu):
-            N_cp = N_cp1
-        else:
-            N_cp = N_cp2
-        symbol_len = Nfft + N_cp
+        symbol_len = Nfft + N_cp[sym_pos_in_slot]
         nFill = (Nfft - grid.shape[0]) // 2
         if nFill < 0:
             full_slot_grid = grid[np.abs(nFill) :, sym_pos_in_slot][:nFill]
@@ -68,14 +67,14 @@ def nrOFDMModulate(
         # phase compensation according to TS 38.211 section 5.4
         if sym_pos_in_slot == 0:
             sample_pos_in_slot = 0
-        sample_pos_in_slot += N_cp
+        sample_pos_in_slot += N_cp[sym_pos_in_slot]
         full_slot_grid *= np.exp(-1j * 2 * np.pi * CarrierFrequency / SampleRate * sample_pos_in_slot)
         sample_pos_in_slot += Nfft
         
         symbol_waveform = np.fft.ifft(np.fft.fftshift(full_slot_grid))
-        symbol_waveform_cp = np.append(symbol_waveform[-N_cp:], symbol_waveform)
+        symbol_waveform_cp = np.append(symbol_waveform[-N_cp[sym_pos_in_slot]:], symbol_waveform)
         waveform = np.append(waveform, symbol_waveform_cp)
-        info["CyclicPrefixLengths"] = np.append(info["CyclicPrefixLengths"], N_cp)
+        info["CyclicPrefixLengths"] = np.append(info["CyclicPrefixLengths"], N_cp[sym_pos_in_slot])
         info["SymbolLengths"] = np.append(info["SymbolLengths"], symbol_len)
-        # print(f'slot {slot_num}, cp_len {N_cp}')
+        # print(f'slot {slot_num}, cp_len {N_cp[sym_pos_in_slot]}')
     return [waveform, info]
