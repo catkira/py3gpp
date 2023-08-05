@@ -55,6 +55,9 @@ def nrOFDMModulate(
         N_cp[i] = N_cp1 if i == 0 or i == 7 * 2 ** (mu) else N_cp2
 
     sample_pos_in_slot = 0
+    for i in range(initialNSlot):
+        sample_pos_in_slot += Nfft + N_cp[i]
+        
     for sym_pos_in_slot in range(nSlots):
         sym_pos_in_slot = (sym_pos_in_slot + initialNSlot) % carrier.SymbolsPerSlot
         symbol_len = Nfft + N_cp[sym_pos_in_slot]

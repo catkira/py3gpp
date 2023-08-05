@@ -28,11 +28,11 @@ def nrOFDMDemodulate(
         if initialNSlot == None:
             print("Error: initialNSlot is needed without carrierConfig!")
             return
-        carrier = nrCarrierConfig(1, NSizeGrid = nrb, NStartGrid = 0, SubcarrierSpacing = scs)
+        carrier = nrCarrierConfig(1, NSizeGrid = nrb, NStartGrid = 0, SubcarrierSpacing = scs, initialNSlot = initialNSlot)
     else:
         nrb = carrier.NSizeGrid
         scs = carrier.SubcarrierSpacing
-        initialNSlot = 0
+        initialNSlot = 0 if initialNSlot is None else initialNSlot
         
     if Nfft == None:
         if SampleRate == None:
@@ -54,7 +54,11 @@ def nrOFDMDemodulate(
     idx = 0
     sym_pos_in_slot = initialNSlot
     grid = np.zeros((nrb * 12, 0), "complex")
+
     sample_pos_in_slot = 0
+    for i in range(initialNSlot):
+        sample_pos_in_slot += Nfft + N_cp[i]
+
     symbols_per_slot = carrier.SymbolsPerSlot
     while idx + Nfft <= waveform.shape[0]:
         sym_pos_in_slot = sym_pos_in_slot % symbols_per_slot
