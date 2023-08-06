@@ -15,7 +15,8 @@ def nrOFDMModulate(
             return
         NSizeGrid = grid.shape[0] // 12
         carrier = nrCarrierConfig(NSizeGrid=NSizeGrid)
-        initialNSlot = carrier.NSlot
+        if initialNSlot is None:
+            initialNSlot = carrier.NSlot
     else:
         NSizeGrid = carrier.NSizeGrid
         if initialNSlot is None:
@@ -58,19 +59,20 @@ def nrOFDMModulate(
     for i in range(initialNSlot):
         sample_pos_in_slot += Nfft + N_cp[i]
         
-    for sym_pos_in_slot in range(nSlots):
-        sym_pos_in_slot = (sym_pos_in_slot + initialNSlot) % carrier.SymbolsPerSlot
+    for sym_pos_in_grid in range(nSlots):
+        sym_pos_in_slot = (sym_pos_in_grid + initialNSlot) % carrier.SymbolsPerSlot
         symbol_len = Nfft + N_cp[sym_pos_in_slot]
         nFill = (Nfft - grid.shape[0]) // 2
         if nFill < 0:
-            full_slot_grid = grid[np.abs(nFill) :, sym_pos_in_slot][:nFill]
+            full_slot_grid = grid[np.abs(nFill) :, sym_pos_in_grid][:nFill]
         else:
-            full_slot_grid = np.concatenate([np.zeros(nFill), grid[:, sym_pos_in_slot], np.zeros(nFill)])
+            full_slot_grid = np.concatenate([np.zeros(nFill), grid[:, sym_pos_in_grid], np.zeros(nFill)])
 
         # phase compensation according to TS 38.211 section 5.4
         if sym_pos_in_slot == 0:
             sample_pos_in_slot = 0
         sample_pos_in_slot += N_cp[sym_pos_in_slot]
+        # print(f'symbol {sym_pos_in_slot}, pos {sample_pos_in_slot}, CP {N_cp[sym_pos_in_slot]}, pos = {len(waveform)}')
         full_slot_grid *= np.exp(-1j * 2 * np.pi * CarrierFrequency / SampleRate * sample_pos_in_slot)
         sample_pos_in_slot += Nfft
         

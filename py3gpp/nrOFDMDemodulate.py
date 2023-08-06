@@ -76,6 +76,7 @@ def nrOFDMDemodulate(
         if sym_pos_in_slot == 0:
             sample_pos_in_slot = 0
         sample_pos_in_slot += N_cp[sym_pos_in_slot]
+        # print(f'symbol {sym_pos_in_slot}, pos {sample_pos_in_slot}, CP {N_cp[sym_pos_in_slot]}, pos {idx - cp_advance}')
         symbol_f *= np.exp(1j * 2 * np.pi * CarrierFrequency / SampleRate * sample_pos_in_slot)
         sample_pos_in_slot += Nfft
 
