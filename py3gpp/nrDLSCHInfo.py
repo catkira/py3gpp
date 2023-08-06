@@ -72,11 +72,11 @@ def getCBSInfo(B, bgn):
         Bd = B
     else:
         L = 24 # Length of the CRC bits attached to each code block
-        C = np.ceil(B/(Kcb-L))
+        C = np.ceil(B/(Kcb-L)).astype(int)
         Bd = B+C*L
 
     # Obtain the number of bits per code block (excluding CB-CRC bits)
-    cbz = np.ceil(B/C)
+    cbz = np.ceil(B/C).astype(int)
 
     # Get number of bits in each code block (excluding filler bits)
     Kd = np.ceil(Bd/C)
