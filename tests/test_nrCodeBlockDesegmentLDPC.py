@@ -6,7 +6,7 @@ from test_data.ldpc import *
 
 def test_single_segment():
     bgn = 2
-    blklen = 656
+    blklen = 640 + 16 # 16 bit transport block CRC
     rx_blk, err = nrCodeBlockDesegmentLDPC(decBits, bgn, blklen)
     assert np.all(rx_blk == blk)
     assert err == False
