@@ -7,7 +7,7 @@ def nrCodeBlockSegmentLDPC(blk, bgn):
     assert bgn in [1, 2], "bgn must be in [1, 2]"
     cbsInfo = getCBSInfo(len(blk), bgn)
     assert cbsInfo['Lcb'] in [0, 24], f'Error: Lcb = {cbsInfo["Lcb"]} is not supported!'
-    cbs = np.zeros((cbsInfo['K'], cbsInfo['C']), dtype=int)
+    cbs = np.ones((cbsInfo['K'], cbsInfo['C']), dtype=int) * (-1) # fill bits are -1
     idx = 0
     for i in np.arange(cbsInfo['C']):
         if i < cbsInfo['C'] - 1:
