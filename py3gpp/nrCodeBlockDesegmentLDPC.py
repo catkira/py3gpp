@@ -21,7 +21,7 @@ def nrCodeBlockDesegmentLDPC(cbs, bgn, blklen):
                 idx += cbsInfo['CBZ']
             else:
                 blk[idx:][:blklen - idx] = cbs[0 : blklen - idx, i]
-                _, crc = nrCRCDecode(cbs[0 : blklen - idx + cbsInfo['Lcb'], i], '24B')
+                _, crc = nrCRCDecode(cbs[0 : cbsInfo['CBZ'] + cbsInfo['Lcb'], i], '24B')
 
             if crc != 0:
                 err = True
