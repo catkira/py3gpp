@@ -45,6 +45,15 @@ def test_multi_segment_combined():
     assert err is False
     assert np.array_equal(data, data2)
 
+    blklen = 10001
+    bgn = 1
+    data = np.ones(blklen)
+
+    cbs = nrCodeBlockSegmentLDPC(data, bgn)
+    data2, err = nrCodeBlockDesegmentLDPC(cbs, bgn, blklen)
+    assert err is False
+    assert np.array_equal(data, data2)
+
 if __name__ == '__main__':
 
     test_multi_segment_combined()

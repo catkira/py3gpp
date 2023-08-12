@@ -21,7 +21,9 @@ def nrCodeBlockSegmentLDPC(blk, bgn):
             if cbsInfo['Lcb'] == 0:
                 cbs[0: len(blk) - idx, i] = blk[idx:]
             elif cbsInfo['Lcb'] == 24:
-                cbs[0: cbsInfo['CBZ'] + cbsInfo['Lcb'], i] = nrCRCEncode(blk[idx:][:cbsInfo['CBZ']], '24B', 0)
+                blk_padded = np.zeros(cbsInfo['CBZ'])
+                blk_padded[: len(blk) - idx] = blk[idx:]
+                cbs[0: cbsInfo['CBZ'] + cbsInfo['Lcb'], i] = nrCRCEncode(blk_padded, '24B', 0)
             
     return cbs
 
