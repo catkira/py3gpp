@@ -35,6 +35,19 @@ def test_multi_segment():
     assert array_to_int(cbs2[2000:2024, 0]) == 0x271b12
     assert array_to_int(cbs2[2000:2024, 1]) == 0x001724
 
+def test_multi_segment_bgn1():
+    bgn = 1
+    blk = test_data.ldpc.random_blk
+    cbs = nrCodeBlockSegmentLDPC(blk, bgn)
+    assert np.array_equal(cbs, test_data.ldpc.random_cbs_bgn1)
+
+def test_multi_segment_bgn2():
+    bgn = 2
+    blk = test_data.ldpc.random_blk
+    cbs = nrCodeBlockSegmentLDPC(blk, bgn)
+    assert np.array_equal(cbs, test_data.ldpc.random_cbs_bgn2)
+
+
 def test_multi_segment_combined():
     blklen = 10000
     bgn = 1
@@ -55,6 +68,9 @@ def test_multi_segment_combined():
     assert np.array_equal(data, data2)
 
 if __name__ == '__main__':
+
+    test_multi_segment_bgn1()
+    test_multi_segment_bgn2()
 
     test_multi_segment_combined()
     test_multi_segment()
