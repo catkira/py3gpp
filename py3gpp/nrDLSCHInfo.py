@@ -59,6 +59,17 @@ def getBGNInfo(A, R):
     return info
 
 
+def getZlist():
+    # Zlist = [2:16 18:2:32 36:4:64 72:8:128 144:16:256 288:32:384];
+    Zlist = []
+    Zlist += list(range(2, 17))
+    Zlist += list(range(18, 33, 2))
+    Zlist += list(range(36, 65, 4))
+    Zlist += list(range(72, 129, 8))
+    Zlist += list(range(144, 257, 16))
+    Zlist += list(range(288, 385, 32))
+    return Zlist
+
 def getCBSInfo(B, bgn):
     if bgn == 1:
         Kcb = 8448
@@ -96,13 +107,7 @@ def getCBSInfo(B, bgn):
             Kb = 6
 
     # Zlist = [2:16 18:2:32 36:4:64 72:8:128 144:16:256 288:32:384];
-    Zlist = []
-    Zlist += list(range(2, 17))
-    Zlist += list(range(18, 33, 2))
-    Zlist += list(range(36, 65, 4))
-    Zlist += list(range(72, 129, 8))
-    Zlist += list(range(144, 257, 16))
-    Zlist += list(range(288, 385, 32))
+    Zlist = getZlist()
 
     # Zc = min(Zlist(Kb*Zlist >= Kd));
     # Zc = []
