@@ -2,6 +2,8 @@ import numpy as np
 
 
 def nrCRCEncode(blk, poly, mask=0):
+    if len(blk.shape) == 1:
+        blk = np.expand_dims(blk, axis = 1)
     if poly == "6":
         L = 6
         # fmt: off
@@ -34,7 +36,7 @@ def nrCRCEncode(blk, poly, mask=0):
         # fmt: on
     else:
         raise ValueError('invalid CRC polynomial specified!')
-    blksrc = np.empty(len(blk) + L, "int")
+    blksrc = np.empty((len(blk) + L, 1), "int")
     blksrc[: len(blk)] = blk
 
     # build crc_poly

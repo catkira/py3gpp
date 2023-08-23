@@ -9,9 +9,9 @@ def run_nr_crc_encode(poly, blk_size, eng):
     blk_bits = eng.randi(matlab.double([0, 1]), blk_size, 1)
 
     ref_data = eng.nrCRCEncode(blk_bits, poly)
-    ref_data = np.array(list(itertools.chain(*ref_data)))
+    ref_data = np.asarray(ref_data)
 
-    blk_bits = np.array(list(itertools.chain(*blk_bits)))
+    blk_bits = np.asarray(blk_bits)
     data = nrCRCEncode(blk_bits, poly)
 
     assert np.all(ref_data == data)
@@ -27,4 +27,4 @@ def test_nr_crc_encode(poly, blk_size):
         eng.quit()
 
 if __name__ == '__main__':
-    test_nr_crc_encode("11", 100)
+    test_nr_crc_encode("11", 2000)
