@@ -24,7 +24,7 @@ def nrRateRecoverLDPC(in_, trblklen, R, rv, mod, nLayers, numCB = None):
     Zc = cbsinfo['Zc']
     N = cbsinfo['N']
 
-    C = cbsinfo['c'] if numCB is None else numCB
+    C = cbsinfo['C'] if numCB is None else numCB
     Ncb = N
 
     if bgn == 1:
