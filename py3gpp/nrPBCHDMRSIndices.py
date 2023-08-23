@@ -1,6 +1,5 @@
 import numpy as np
 
-
 def nrPBCHDMRSIndices(ncellid, style="matlab"):
     indices_sym1_3 = np.arange(ncellid % 4, 240, 4)
     indices_sym2 = np.concatenate((np.arange(ncellid % 4, 48, 4), np.arange(192 + ncellid % 4, 240, 4)))
@@ -15,4 +14,4 @@ def nrPBCHDMRSIndices(ncellid, style="matlab"):
         return indices
     else:
         raise ValueError("Unknown style!")
-        return
+    return
