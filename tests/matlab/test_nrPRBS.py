@@ -13,10 +13,16 @@ def run_nr_prbs(cinit, size, eng):
     data = nrPRBS(cinit, size)
 
     assert np.all(ref_data == data)
+    
+@pytest.fixture(scope='session')
+def eng():
+    eng = matlab.engine.connect_matlab()
+    yield eng
+    eng.quit()
 
 @pytest.mark.parametrize("cinit", [0, 100, 1245345, 534667868])
 @pytest.mark.parametrize("size", [1024, 8192])
-def test_nr_prbs(cinit, size):
+def test_nr_prbs(cinit, size, eng):
     eng = matlab.engine.connect_matlab()
 
     try:

@@ -38,14 +38,18 @@ def run_nr_pdschdmrs(cfg, eng):
 
     assert np.array_equal(pdschdmrs_syms, pdschdmrs_syms_ref)
 
+@pytest.fixture(scope='session')
+def eng():
+    eng = matlab.engine.connect_matlab()
+    yield eng
+    eng.quit()
 
 @pytest.mark.parametrize('typeA_pos', [2, 3])
 @pytest.mark.parametrize('symb_alloc', [[2, 12]])
 @pytest.mark.parametrize('dmrs_add_pos', [0, 1, 2, 3])
 @pytest.mark.parametrize('PRBSet', [list(range(0, 132)), list(range(60, 132)), list(range(30, 60))])
 @pytest.mark.parametrize('dmrs_cfg_type', [1, 2])
-def test_nr_pdschdmrs(symb_alloc, dmrs_add_pos, typeA_pos, PRBSet, dmrs_cfg_type):
-    eng = matlab.engine.connect_matlab()
+def test_nr_pdschdmrs(symb_alloc, dmrs_add_pos, typeA_pos, PRBSet, dmrs_cfg_type, eng):
     eng.cd(os.path.dirname(__file__))
 
     cfg = {}
@@ -62,10 +66,7 @@ def test_nr_pdschdmrs(symb_alloc, dmrs_add_pos, typeA_pos, PRBSet, dmrs_cfg_type
     cfg['NSCID'] = 0
     cfg['EnablePTRS'] = 0
 
-    try:
-        run_nr_pdschdmrs(cfg, eng)
-    finally:
-        eng.quit()
+    run_nr_pdschdmrs(cfg, eng)
 
 if __name__ == '__main__':
     test_nr_pdschdmrs([2, 12], 1, 2, list(range(2, 130)), 2)

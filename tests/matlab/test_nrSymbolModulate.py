@@ -19,10 +19,14 @@ def run_nr_mapper(databits, modtype, eng):
 
     assert (ref_data == data).all()
 
-@pytest.mark.parametrize("modtype", ["BPSK", "pi/2-BPSK", "QPSK", "16QAM", "64QAM", "256QAM"])
-def test_nr_pbch(modtype):
+@pytest.fixture(scope='session')
+def eng():
     eng = matlab.engine.connect_matlab()
+    yield eng
+    eng.quit()
 
+@pytest.mark.parametrize("modtype", ["BPSK", "pi/2-BPSK", "QPSK", "16QAM", "64QAM", "256QAM"])
+def test_nr_pbch(modtype, eng):
     if modtype == "BPSK":
         databits = get_bin_symbols(1, 2)
     elif modtype == "pi/2-BPSK":
@@ -36,7 +40,4 @@ def test_nr_pbch(modtype):
     elif modtype == "256QAM":
         databits = get_bin_symbols(8, 256)
 
-    try:
-        run_nr_mapper(databits, modtype, eng)
-    finally:
-        eng.quit()
+    run_nr_mapper(databits, modtype, eng)

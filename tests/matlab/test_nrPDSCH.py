@@ -15,19 +15,19 @@ def run_nr_pdsch(cws, modulation, nlayers, nid, nrnti, eng):
 
     assert np.all(ref_data == data)
 
+@pytest.fixture(scope='session')
+def eng():
+    eng = matlab.engine.connect_matlab()
+    yield eng
+    eng.quit()
+
 @pytest.mark.parametrize("modulation", [["256QAM"], ["64QAM"], ["16QAM"], ["QPSK"]])
 @pytest.mark.parametrize("nlayers", [1])
 @pytest.mark.parametrize("nid", [0, 1])
 @pytest.mark.parametrize("nrnti", [0, 1])
-def test_run_nr_pdsch(modulation, nlayers, nid, nrnti):
-    eng = matlab.engine.connect_matlab()
-
+def test_run_nr_pdsch(modulation, nlayers, nid, nrnti, eng):
     databits = eng.randi(matlab.double([0, 1]), 4800, 1)
-
-    try:
-        run_nr_pdsch(databits, modulation, nlayers, nid, nrnti, eng)
-    finally:
-        eng.quit()
+    run_nr_pdsch(databits, modulation, nlayers, nid, nrnti, eng)
 
 if __name__ == '__main__':
     test_run_nr_pdsch(["64QAM"], 1, 0, 0)

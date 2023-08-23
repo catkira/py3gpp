@@ -20,11 +20,12 @@ def run_nr_pss(ncellid, eng):
     assert np.all(ref_data == data)
     assert np.all(indices == ref_ind)
 
-@pytest.mark.parametrize("ncellid", [0, 500, 1007])
-def test_nr_pss(ncellid):
+@pytest.fixture(scope='session')
+def eng():
     eng = matlab.engine.connect_matlab()
+    yield eng
+    eng.quit()
 
-    try:
-        run_nr_pss(ncellid, eng)
-    finally:
-        eng.quit()
+@pytest.mark.parametrize("ncellid", [0, 500, 1007])
+def test_nr_pss(ncellid, eng):
+    run_nr_pss(ncellid, eng)

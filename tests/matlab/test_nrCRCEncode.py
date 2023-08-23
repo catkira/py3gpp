@@ -14,17 +14,19 @@ def run_nr_crc_encode(poly, blk_size, eng):
     blk_bits = np.asarray(blk_bits)
     data = nrCRCEncode(blk_bits, poly)
 
-    assert np.all(ref_data == data)
+    assert np.array_equal(ref_data, data)
+
+@pytest.fixture(scope='session')
+def eng():
+    eng = matlab.engine.connect_matlab()
+    yield eng
+    eng.quit()
+
 
 @pytest.mark.parametrize("poly", ["6", "11", "16", "24A", "24B", "24C"])
 @pytest.mark.parametrize("blk_size", [100, 2000])
-def test_nr_crc_encode(poly, blk_size):
-    eng = matlab.engine.connect_matlab()
-
-    try:
-        run_nr_crc_encode(poly, blk_size, eng)
-    finally:
-        eng.quit()
+def test_nr_crc_encode(poly, blk_size, eng):
+    run_nr_crc_encode(poly, blk_size, eng)
 
 if __name__ == '__main__':
-    test_nr_crc_encode("11", 2000)
+    test_nr_crc_encode("6", 100)

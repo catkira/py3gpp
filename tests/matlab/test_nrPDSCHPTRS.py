@@ -46,6 +46,12 @@ def run_nr_pdschptrs(cfg, eng):
     assert np.array_equal(pdschptrs_syms, data_ref)
 
 
+@pytest.fixture(scope='session')
+def eng():
+    eng = matlab.engine.connect_matlab()
+    yield eng
+    eng.quit()
+
 @pytest.mark.parametrize('typeA_pos', [2, 3])
 @pytest.mark.parametrize('symb_alloc', [[2, 12]])
 @pytest.mark.parametrize('dmrs_add_pos', [0, 1, 2, 3])
@@ -54,8 +60,7 @@ def run_nr_pdschptrs(cfg, eng):
 @pytest.mark.parametrize('PTRSREOffset', ['00', '01', '10', '11'])
 @pytest.mark.parametrize('PTRSFrequencyDensity', [2, 4])
 @pytest.mark.parametrize('PTRSTimeDensity', [1, 2, 4])
-def test_nr_pdschptrs(typeA_pos, symb_alloc, dmrs_add_pos, PRBSet, dmrs_cfg_type, PTRSREOffset, PTRSFrequencyDensity, PTRSTimeDensity):
-    eng = matlab.engine.connect_matlab()
+def test_nr_pdschptrs(typeA_pos, symb_alloc, dmrs_add_pos, PRBSet, dmrs_cfg_type, PTRSREOffset, PTRSFrequencyDensity, PTRSTimeDensity, eng):
     eng.cd(os.path.dirname(__file__))
 
     cfg = {}
@@ -76,12 +81,7 @@ def test_nr_pdschptrs(typeA_pos, symb_alloc, dmrs_add_pos, PRBSet, dmrs_cfg_type
     cfg['PTRSFrequencyDensity'] = PTRSFrequencyDensity
     cfg['PTRSREOffset'] = PTRSREOffset
 
-    try:
-        run_nr_pdschptrs(cfg, eng)
-    finally:
-        eng.quit()
-        # MATLAB hangs in case too fast requests
-        time.sleep(100/1000.0)
+    run_nr_pdschptrs(cfg, eng)
 
 if __name__ == '__main__':
     test_nr_pdschptrs(3, [2, 12], 0, list(range(10, 132)), 2, '11', 4, 1)

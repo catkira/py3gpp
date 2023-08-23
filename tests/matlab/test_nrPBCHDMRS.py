@@ -23,12 +23,13 @@ def run_nr_pbch_dmrs(ncellid, issb, eng):
     assert np.all(ref_data == data)
     assert np.all(ref_ind == indices)
 
+@pytest.fixture(scope='session')
+def eng():
+    eng = matlab.engine.connect_matlab()
+    yield eng
+    eng.quit()
+
 @pytest.mark.parametrize("ncellid", [0, 500, 1007])
 @pytest.mark.parametrize("issb", list(range(8)))
-def test_nr_pbch_dmrs(ncellid, issb):
-    eng = matlab.engine.connect_matlab()
-
-    try:
-        run_nr_pbch_dmrs(ncellid, issb, eng)
-    finally:
-        eng.quit()
+def test_nr_pbch_dmrs(ncellid, issb, eng):
+    run_nr_pbch_dmrs(ncellid, issb, eng)
