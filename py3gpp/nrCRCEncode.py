@@ -35,7 +35,7 @@ def nrCRCEncode(blk, poly, mask=0):
         crc_coeffs = [24, 23, 21, 20, 17, 15, 13, 12, 8, 4, 2, 1, 0]
         # fmt: on
     else:
-        raise ValueError('invalid CRC polynomial specified!')
+        raise ValueError("invalid CRC polynomial specified!")
     blksrc = np.empty((len(blk) + L, 1), "int")
     blksrc[: len(blk)] = blk
 
