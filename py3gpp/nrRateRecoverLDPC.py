@@ -80,11 +80,10 @@ def _rateRecover(in_, cbsinfo, k0, Ncb, Qm):
     N_buffer = Ncb - N_filler_bits
     idx = np.tile(np.arange(Ncb), np.ceil(E / N_buffer).astype(int))
 
-    indicesFillerBits = idx[(idx > Kd) & (idx <= K)][:E]
-    indices = np.delete(idx, indicesFillerBits)
-    indices = indices[:E]
-
     idx = np.roll(idx, -k0)
+
+    indices = np.delete(idx, (idx >= Kd) & (idx < K))
+    indices = indices[:E]
 
     out = np.zeros(cbsinfo['N'])
     out[Kd : K] = np.inf
@@ -105,7 +104,7 @@ if __name__ == '__main__':
     sbits = np.ones(4500)
     trblklen = 4000
     R = 0.5
-    rv = 0
+    rv = 1
     mod = 'QPSK'
     nLayers = 1
     numCB = 1
