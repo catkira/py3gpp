@@ -49,7 +49,7 @@ def nrRateMatchLDPC(in_, outlen, rv, mod, nLayers):
             k0 = np.floor(25 * Ncb / N) * Zc
         elif rv == 3:
             k0 = np.floor(43 * Ncb / N) * Zc
-    k0 = int(-k0)
+    k0 = int(k0)
     rematched = np.empty(0)
     for r in np.arange(C):
         if r <= C - np.mod(outlen / (nLayers * Qm), C) - 1:
@@ -65,7 +65,7 @@ def _rateMatch(d, E, k0, Ncb, Qm):
 
     d = np.tile(d, np.ceil(E / (len(d[:Ncb]) - N_filler_bits)).astype(int))
 
-    d = np.roll(d, k0)
+    d = np.roll(d, -k0)
 
     e = d[d != -1][:E]
 
