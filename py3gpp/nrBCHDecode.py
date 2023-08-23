@@ -14,6 +14,7 @@ def nrBCHDecode(softbits, L, lssb=None, ncellid=None):
 
     decoded = nrPolarDecode(matched, K, E, L)
     scrblk, crc_result = nrCRCDecode(decoded, "24C")
+    scrblk = scrblk[:, 0]
 
     if (lssb is None) or (ncellid is None):
         return scrblk, crc_result
@@ -27,7 +28,7 @@ def nrBCHDecode(softbits, L, lssb=None, ncellid=None):
     SFN_PAYLOAD_LENGTH = 6
     SFN_2ND_LSB = SFN_PAYLOAD_LENGTH + 2
     SFN_3RD_LSB = SFN_PAYLOAD_LENGTH + 1
-    v = 2 * scrblk[G[SFN_3RD_LSB], 0] + scrblk[G[SFN_2ND_LSB], 0]
+    v = 2 * scrblk[G[SFN_3RD_LSB]] + scrblk[G[SFN_2ND_LSB]]
 
     L_max = 8  # TODO: fix this
     A = 32
