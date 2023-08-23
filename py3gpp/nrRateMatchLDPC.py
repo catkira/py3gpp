@@ -49,6 +49,7 @@ def nrRateMatchLDPC(in_, outlen, rv, mod, nLayers):
             k0 = np.floor(25 * Ncb / N) * Zc
         elif rv == 3:
             k0 = np.floor(43 * Ncb / N) * Zc
+    k0 = int(-k0)
     rematched = np.empty(0)
     for r in np.arange(C):
         if r <= C - np.mod(outlen / (nLayers * Qm), C) - 1:
@@ -62,8 +63,7 @@ def nrRateMatchLDPC(in_, outlen, rv, mod, nLayers):
 def _rateMatch(d, E, k0, Ncb, Qm):
     N_filler_bits = np.count_nonzero(d[:Ncb] == -1)
 
-    if np.ceil(E / (len(d[:Ncb]) - N_filler_bits)):
-        d = np.append(d, d)
+    d = np.tile(d, np.ceil(E / (len(d[:Ncb]) - N_filler_bits)).astype(int))
 
     d = np.roll(d, k0)
 
@@ -72,7 +72,7 @@ def _rateMatch(d, E, k0, Ncb, Qm):
     # last bits of QAM modulates symbols are not as reliable as first ones
     # therefore map systematic bits to to first bits of each symbol
     # according to section 5.4.2.2
-    e = np.reshape(e, (int(E / Qm), Qm)).T.ravel(order='C')
+    e = np.reshape(e, (Qm, int(E / Qm))).ravel(order='F')
     return e
 
 if __name__ == '__main__':

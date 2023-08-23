@@ -16,16 +16,19 @@ def eng():
     eng.quit()
 
 @pytest.mark.parametrize("N", [3960])
-def test_nrRateMatchLDPC(N, eng):
-    rv = 0
+@pytest.mark.parametrize("C", [1, 2, 3])
+@pytest.mark.parametrize("rv", [0, 1, 2, 3])
+@pytest.mark.parametrize("N_filler_bits", [0, 20])
+def test_nrRateMatchLDPC(N, C, rv, N_filler_bits, eng):
     mod = 'QPSK'
     nLayers = 1
     outlen = 8000
-    # in_ = np.ones((3960,2))
-    in_ = np.random.randint(2, size = (N, 2))
+    in_ = np.random.randint(2, size = (N, C))
+    if N_filler_bits > 1:
+        in_[-N_filler_bits:, :] = np.ones((N_filler_bits, C)) * (-1)
     run_nrRateMatchLDPC(in_, outlen, rv, mod, nLayers, eng)
 
 if __name__ == '__main__':
     _eng = matlab.engine.connect_matlab()
-    test_nrRateMatchLDPC(3960, _eng)
+    test_nrRateMatchLDPC(3960, 1, 1, 20, _eng)
     _eng.quit()
