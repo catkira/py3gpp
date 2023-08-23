@@ -15,16 +15,17 @@ def eng():
     yield eng
     eng.quit()
 
-@pytest.mark.parametrize("N", [512, 256, 128])
+@pytest.mark.parametrize("N", [3960])
 def test_nrRateMatchLDPC(N, eng):
     rv = 0
     mod = 'QPSK'
     nLayers = 1
     outlen = 8000
-    in_ = np.ones((3960,2))
+    # in_ = np.ones((3960,2))
+    in_ = np.random.randint(2, size = (N, 2))
     run_nrRateMatchLDPC(in_, outlen, rv, mod, nLayers, eng)
 
 if __name__ == '__main__':
     _eng = matlab.engine.connect_matlab()
-    test_nrRateMatchLDPC(512, _eng)
+    test_nrRateMatchLDPC(3960, _eng)
     _eng.quit()

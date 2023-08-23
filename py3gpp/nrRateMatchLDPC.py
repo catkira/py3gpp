@@ -65,9 +65,14 @@ def _rateMatch(d, E, k0, Ncb, Qm):
     if np.ceil(E / (len(d[:Ncb]) - N_filler_bits)):
         d = np.append(d, d)
 
-    d = np.roll(d, -k0)
+    d = np.roll(d, k0)
 
     e = d[d != -1][:E]
+
+    # last bits of QAM modulates symbols are not as reliable as first ones
+    # therefore map systematic bits to to first bits of each symbol
+    # according to section 5.4.2.2
+    e = np.reshape(e, (int(E / Qm), Qm)).T.ravel(order='C')
     return e
 
 if __name__ == '__main__':
@@ -75,6 +80,6 @@ if __name__ == '__main__':
     mod = 'QPSK'
     nLayers = 1
     outlen = 8000
-    in_ = np.ones((3960,2))
+    in_ = np.ones((3960, 2))
     rematched = nrRateMatchLDPC(in_, outlen, rv, mod, nLayers)
     assert rematched.shape == (8000,)
