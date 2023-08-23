@@ -13,7 +13,7 @@ def test_single_segment():
     # check transport block CRC
     out, crc = nrCRCDecode(rx_blk, '16')
     assert crc == 0
-    assert np.all(out == test_data.ldpc.sib1bits)
+    assert np.array_equal(np.ravel(out), test_data.ldpc.sib1bits)
 
 if __name__ == '__main__':
     test_single_segment()
