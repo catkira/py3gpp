@@ -29,4 +29,6 @@ def test_nr_crc_encode(poly, blk_size, eng):
     run_nr_crc_encode(poly, blk_size, eng)
 
 if __name__ == '__main__':
-    test_nr_crc_encode("6", 100)
+    _eng = matlab.engine.connect_matlab()
+    test_nr_crc_encode("6", 100, _eng)
+    _eng.quit()

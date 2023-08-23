@@ -30,4 +30,6 @@ def test_run_nr_pdsch(modulation, nlayers, nid, nrnti, eng):
     run_nr_pdsch(databits, modulation, nlayers, nid, nrnti, eng)
 
 if __name__ == '__main__':
-    test_run_nr_pdsch(["64QAM"], 1, 0, 0)
+    _eng = matlab.engine.connect_matlab()
+    test_run_nr_pdsch(["64QAM"], 1, 0, 0, _eng)
+    _eng.quit()

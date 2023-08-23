@@ -84,4 +84,6 @@ def test_nr_pdschptrs(typeA_pos, symb_alloc, dmrs_add_pos, PRBSet, dmrs_cfg_type
     run_nr_pdschptrs(cfg, eng)
 
 if __name__ == '__main__':
-    test_nr_pdschptrs(3, [2, 12], 0, list(range(10, 132)), 2, '11', 4, 1)
+    _eng = matlab.engine.connect_matlab()
+    test_nr_pdschptrs(3, [2, 12], 0, list(range(10, 132)), 2, '11', 4, 1, _eng)
+    _eng.quit()

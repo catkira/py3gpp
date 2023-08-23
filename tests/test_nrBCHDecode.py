@@ -35,3 +35,6 @@ def test_nrBCHDecode():
     # fmt: on
     assert np.all(trblk == trblk_matlab), "nrBCHDecode trblk mismatch"
     assert np.all(sfn4lsb == np.array([0, 1, 0, 0])), "nrBCHDecode sfn4lsb mismatch"
+
+if __name__ == '__main__':
+    test_nrBCHDecode()

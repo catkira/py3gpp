@@ -8,7 +8,7 @@ from py3gpp.nrPDSCHDMRSIndices import nrPDSCHDMRSIndices
 from py3gpp.configs.nrPDSCHConfig import nrPDSCHConfig
 
 def run_nr_pdschdmrs_indices(cfg, eng):
-    pdsch_cfg = nrPDSCHConfig();
+    pdsch_cfg = nrPDSCHConfig()
     pdsch_cfg.NSizeBWP = cfg['n_size_bwp']
     pdsch_cfg.NStartBWP = cfg['n_start_bwp']
     pdsch_cfg.MappingType = cfg['MappingType']
@@ -61,4 +61,6 @@ def test_nr_pdschdmrs_indices(symb_alloc, dmrs_add_pos, typeA_pos, PRBSet, dmrs_
     run_nr_pdschdmrs_indices(cfg, eng)
 
 if __name__ == '__main__':
-    test_nr_pdschdmrs([2, 12], 1, 2, list(range(2, 130)), 2)
+    _eng = matlab.engine.connect_matlab()
+    test_nr_pdschdmrs_indices([2, 12], 1, 2, list(range(2, 130)), 2, _eng)
+    _eng.quit()

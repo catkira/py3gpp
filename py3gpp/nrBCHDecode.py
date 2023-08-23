@@ -27,7 +27,7 @@ def nrBCHDecode(softbits, L, lssb=None, ncellid=None):
     SFN_PAYLOAD_LENGTH = 6
     SFN_2ND_LSB = SFN_PAYLOAD_LENGTH + 2
     SFN_3RD_LSB = SFN_PAYLOAD_LENGTH + 1
-    v = 2 * scrblk[G[SFN_3RD_LSB]] + scrblk[G[SFN_2ND_LSB]]
+    v = 2 * scrblk[G[SFN_3RD_LSB], 0] + scrblk[G[SFN_2ND_LSB], 0]
 
     L_max = 8  # TODO: fix this
     A = 32
