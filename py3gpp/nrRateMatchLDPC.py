@@ -1,5 +1,5 @@
 import numpy as np
-from nrDLSCHInfo import getZlist
+from py3gpp.nrDLSCHInfo import getZlist
 
 def nrRateMatchLDPC(in_, outlen, rv, mod, nLayers):
     assert nLayers == 1, 'nLayers > 1 is not yet implemented'
@@ -49,19 +49,26 @@ def nrRateMatchLDPC(in_, outlen, rv, mod, nLayers):
             k0 = np.floor(25 * Ncb / N) * Zc
         elif rv == 3:
             k0 = np.floor(43 * Ncb / N) * Zc
-    rematched = []
+    rematched = np.empty(0)
     for r in np.arange(C):
         if r <= C - np.mod(outlen / (nLayers * Qm), C) - 1:
-            E = Qm * nLayers * np.floor(outlen / (Qm * nLayers * C))
+            E = Qm * nLayers * np.floor(outlen / (Qm * nLayers * C)).astype(int)
         else:
-            E = Qm * nLayers * np.ceil(outlen / (Qm * nLayers * C))
-        rematched.append(rateMatch(in_[:, r], E, k0, Ncb, Qm))
+            E = Qm * nLayers * np.ceil(outlen / (Qm * nLayers * C)).astype(int)
+        rematched = np.append(rematched, _rateMatch(in_[:, r], E, k0, Ncb, Qm))
 
-    rematched = np.array(rematched).ravel()
     return rematched
 
-def rateMatch(d,E,k0,Ncb,Qm):
-    return []
+def _rateMatch(d, E, k0, Ncb, Qm):
+    N_filler_bits = np.count_nonzero(d[:Ncb] == -1)
+
+    if np.ceil(E / (len(d[:Ncb]) - N_filler_bits)):
+        d = np.append(d, d)
+
+    d = np.roll(d, -k0)
+
+    e = d[d != -1][:E]
+    return e
 
 if __name__ == '__main__':
     rv = 0
@@ -70,4 +77,4 @@ if __name__ == '__main__':
     outlen = 8000
     in_ = np.ones((3960,2))
     rematched = nrRateMatchLDPC(in_, outlen, rv, mod, nLayers)
-    assert rematched.shape == (8000, 1)
+    assert rematched.shape == (8000,)
