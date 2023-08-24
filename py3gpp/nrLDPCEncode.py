@@ -1,5 +1,6 @@
 import numpy as np
-from importlib_resources import files, as_file
+import scipy as sp
+from importlib_resources import files, as_file # importlib.resources only works for Python >= 3.9
 from py3gpp.nrDLSCHInfo import getZlist
 from py3gpp import codes
 
@@ -36,6 +37,39 @@ def _load_basegraph(i_ls, bgn):
 
     return bm
 
+# This function is from Sionna
+def _lift_basegraph(bm, z):
+    """Lift basegraph with lifting factor ``z`` and shifted identities as
+    defined by the entries of ``bm``."""
+
+    num_nonzero = np.sum(bm>=0) # num of non-neg elements in bm
+
+    # init all non-zero row/column indices
+    r_idx = np.zeros(z*num_nonzero)
+    c_idx = np.zeros(z*num_nonzero)
+    data = np.ones(z*num_nonzero)
+
+    # row/column indices of identity matrix for lifting
+    im = np.arange(z)
+
+    idx = 0
+    for r in range(bm.shape[0]):
+        for c in range(bm.shape[1]):
+            if bm[r,c]==-1: # -1 is used as all-zero matrix placeholder
+                pass #do nothing (sparse)
+            else:
+                # roll matrix by bm[r,c]
+                c_roll = np.mod(im+bm[r,c], z)
+                # append rolled identity matrix to pcm
+                r_idx[idx*z:(idx+1)*z] = r*z + im
+                c_idx[idx*z:(idx+1)*z] = c*z + c_roll
+                idx += 1
+
+    # generate lifted sparse matrix from indices
+    pcm = sp.sparse.csr_matrix((data,(r_idx, c_idx)),
+                                shape=(z*bm.shape[0], z*bm.shape[1]))
+    return pcm
+
 def nrLDPCEncode(cbs, bgn):
     assert len(cbs.shape) == 2, 'cbs must be a 2-dimensional matrix'
     K = cbs.shape[0]  # length of a code segment
@@ -61,6 +95,7 @@ def nrLDPCEncode(cbs, bgn):
 
     # encode
     bm = _load_basegraph(7, bgn)
+    pcm = _lift_basegraph(bm, Zc)
 
     # set filler bits back to -1
     fill_indices_out = np.append(fill_indices, np.repeat(False, N + 2 * Zc - K))
