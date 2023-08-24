@@ -70,6 +70,121 @@ def _lift_basegraph(bm, z):
                                 shape=(z*bm.shape[0], z*bm.shape[1]))
     return pcm
 
+# This function is from Sionna
+def _gen_submat(bm, k_b, z, bgn):
+    """Split the basegraph into multiple sub-matrices such that efficient
+    encoding is possible.
+    """
+    g = 4 # code property (always fixed for 5G)
+    mb = bm.shape[0] # number of CN rows in basegraph (BG property)
+
+    bm_a = bm[0:g, 0:k_b]
+    bm_b = bm[0:g, k_b:(k_b+g)]
+    bm_c1 = bm[g:mb, 0:k_b]
+    bm_c2 = bm[g:mb, k_b:(k_b+g)]
+
+    # H could be sliced immediately (but easier to implement if based on B)
+    hm_a = _lift_basegraph(bm_a, z)
+
+    # not required for encoding, but helpful for debugging
+    #hm_b = self._lift_basegraph(bm_b, z)
+
+    hm_c1 = _lift_basegraph(bm_c1, z)
+    hm_c2 = _lift_basegraph(bm_c2, z)
+
+    hm_b_inv = _find_hm_b_inv(bm_b, z, bgn)
+
+    return hm_a, hm_b_inv, hm_c1, hm_c2
+
+# This function is from Sionna
+def _find_hm_b_inv(bm_b, z, bgn):
+    """ For encoding we need to find the inverse of `hm_b` such that
+    `hm_b^-1 * hm_b = I`.
+
+    Could be done sparse
+    For BG1 the structure of hm_b is given as (for all values of i_ls)
+    hm_b =
+    [P_A I 0 0
+        P_B I I 0
+        0 0 I I
+        P_A 0 0 I]
+    where P_B and P_A are Shifted identities.
+
+    The inverse can be found by solving a linear system of equations
+    hm_b_inv =
+    [P_B^-1, P_B^-1, P_B^-1, P_B^-1,
+        I + P_A*P_B^-1, P_A*P_B^-1, P_A*P_B^-1, P_A*P_B^-1,
+        P_A*P_B^-1, P_A*P_B^-1, I+P_A*P_B^-1, I+P_A*P_B^-1,
+        P_A*P_B^-1, P_A*P_B^-1, P_A*P_B^-1, I+P_A*P_B^-1].
+
+
+    For bg2 the structure of hm_b is given as (for all values of i_ls)
+    hm_b =
+    [P_A I 0 0
+        0 I I 0
+        P_B 0 I I
+        P_A 0 0 I]
+    where P_B and P_A are Shifted identities
+
+    The inverse can be found by solving a linear system of equations
+    hm_b_inv =
+    [P_B^-1, P_B^-1, P_B^-1, P_B^-1,
+        I + P_A*P_B^-1, P_A*P_B^-1, P_A*P_B^-1, P_A*P_B^-1,
+        I+P_A*P_B^-1, I+P_A*P_B^-1, P_A*P_B^-1, P_A*P_B^-1,
+        P_A*P_B^-1, P_A*P_B^-1, P_A*P_B^-1, I+P_A*P_B^-1]
+
+    Note: the inverse of B is simply a shifted identity matrix with
+    negative shift direction.
+    """
+
+    # permutation indices
+    pm_a= int(bm_b[0,0])
+    if bgn == 1:
+        pm_b_inv = int(-bm_b[1, 0])
+    else: # structure of B is slightly different for bg2
+        pm_b_inv = int(-bm_b[2, 0])
+
+    hm_b_inv = np.zeros([4*z, 4*z])
+
+    im = np.eye(z)
+
+    am = np.roll(im, pm_a, axis=1)
+    b_inv = np.roll(im, pm_b_inv, axis=1)
+    ab_inv = np.matmul(am, b_inv)
+
+    # row 0
+    hm_b_inv[0:z, 0:z] = b_inv
+    hm_b_inv[0:z, z:2*z] = b_inv
+    hm_b_inv[0:z, 2*z:3*z] = b_inv
+    hm_b_inv[0:z, 3*z:4*z] = b_inv
+
+    # row 1
+    hm_b_inv[z:2*z, 0:z] = im + ab_inv
+    hm_b_inv[z:2*z, z:2*z] = ab_inv
+    hm_b_inv[z:2*z, 2*z:3*z] = ab_inv
+    hm_b_inv[z:2*z, 3*z:4*z] = ab_inv
+
+    # row 2
+    if bgn == 1:
+        hm_b_inv[2*z:3*z, 0:z] = ab_inv
+        hm_b_inv[2*z:3*z, z:2*z] = ab_inv
+        hm_b_inv[2*z:3*z, 2*z:3*z] = im + ab_inv
+        hm_b_inv[2*z:3*z, 3*z:4*z] = im + ab_inv
+    else: # for bg2 the structure is slightly different
+        hm_b_inv[2*z:3*z, 0:z] = im + ab_inv
+        hm_b_inv[2*z:3*z, z:2*z] = im + ab_inv
+        hm_b_inv[2*z:3*z, 2*z:3*z] = ab_inv
+        hm_b_inv[2*z:3*z, 3*z:4*z] = ab_inv
+
+    # row 3
+    hm_b_inv[3*z:4*z, 0:z] = ab_inv
+    hm_b_inv[3*z:4*z, z:2*z] = ab_inv
+    hm_b_inv[3*z:4*z, 2*z:3*z] = ab_inv
+    hm_b_inv[3*z:4*z, 3*z:4*z] = im + ab_inv
+
+    # return results as sparse matrix
+    return sp.sparse.csr_matrix(hm_b_inv)
+
 def nrLDPCEncode(cbs, bgn):
     assert len(cbs.shape) == 2, 'cbs must be a 2-dimensional matrix'
     K = cbs.shape[0]  # length of a code segment
@@ -126,6 +241,7 @@ def nrLDPCEncode(cbs, bgn):
     # encode
     bm = _load_basegraph(i_ls, bgn)
     pcm = _lift_basegraph(bm, Zc)
+    pcm_a, pcm_b_inv, pcm_c1, pcm_c2 = _gen_submat(bm, k_b, Zc, bgn)
     print(f'pcm = {pcm.shape[0]} x {pcm.shape[1]} matrix')
 
     # set filler bits back to -1
