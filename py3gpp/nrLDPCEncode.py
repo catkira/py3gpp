@@ -121,7 +121,7 @@ def nrLDPCEncode(cbs, bgn):
 
     # replace filler bits with 0
     fill_indices = (cbs[:, 0] == -1)  # filler bits are at identical locations in every segment
-    cbs[fill_indices, :] = 0
+    cbs[fill_indices, :] = 0 # set filler bits to 0
 
     # encode
     bm = _load_basegraph(i_ls, bgn)
