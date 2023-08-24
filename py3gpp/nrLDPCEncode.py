@@ -185,6 +185,12 @@ def _find_hm_b_inv(bm_b, z, bgn):
     # return results as sparse matrix
     return sp.sparse.csr_matrix(hm_b_inv)
 
+def _encode(s, pcm_a, pcm_b_inv, pcm_c1, pcm_c2):
+    N = pcm_c1.shape[0] + pcm_a.shape[1] + pcm_b_inv.shape[0]
+    out = np.zeros(N)
+    # TODO: implement algo
+    return out
+
 def nrLDPCEncode(cbs, bgn):
     assert len(cbs.shape) == 2, 'cbs must be a 2-dimensional matrix'
     K = cbs.shape[0]  # length of a code segment
@@ -243,6 +249,8 @@ def nrLDPCEncode(cbs, bgn):
     pcm = _lift_basegraph(bm, Zc)
     pcm_a, pcm_b_inv, pcm_c1, pcm_c2 = _gen_submat(bm, k_b, Zc, bgn)
     print(f'pcm = {pcm.shape[0]} x {pcm.shape[1]} matrix')
+    for i in range(cbs.shape[1]):
+        codedcbs[:, i] = _encode(cbs[:, i], pcm_a, pcm_b_inv, pcm_c1, pcm_c2)
 
     # set filler bits back to -1
     fill_indices_out = np.append(fill_indices, np.repeat(False, N + 2 * Zc - K))
