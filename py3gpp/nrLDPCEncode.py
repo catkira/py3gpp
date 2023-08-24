@@ -186,10 +186,20 @@ def _find_hm_b_inv(bm_b, z, bgn):
     return sp.sparse.csr_matrix(hm_b_inv)
 
 def _encode(s, pcm_a, pcm_b_inv, pcm_c1, pcm_c2):
+    p_a = pcm_a * s
+    p_a = pcm_b_inv * p_a
+
+    p_b_1 = pcm_c1 * s.T
+    p_b_2 = pcm_c2 * p_a.T
+    p_b = p_b_1 + p_b_2
+
+    c = np.concatenate((s, p_a, p_b)).astype(np.uint8)
+    c = np.mod(c, 2)
+
     N = pcm_c1.shape[0] + pcm_a.shape[1] + pcm_b_inv.shape[0]
-    out = np.zeros(N)
-    # TODO: implement algo
-    return out
+    assert c.shape[0] == N
+
+    return c
 
 def nrLDPCEncode(cbs, bgn):
     assert len(cbs.shape) == 2, 'cbs must be a 2-dimensional matrix'
@@ -209,7 +219,7 @@ def nrLDPCEncode(cbs, bgn):
 
     # calculate output size (N)
     N = int(Zc * ncwnodes)
-    codedcbs = np.zeros((N + 2 * Zc, C))
+    codedcbs = np.zeros((N + 2 * Zc, C)).astype(np.int8)
 
     # find i_ls
     if bgn == 1:
@@ -267,6 +277,7 @@ if __name__ == '__main__':
     K = 2560
     F = 36
     cbs = np.ones((K - F, C))
+    cbs[0:10] = 0
     fillers = (-1) * np.ones((F, C))
     cbs = np.vstack((cbs, fillers))
     codedcbs = nrLDPCEncode(cbs, bgn)
