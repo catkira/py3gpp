@@ -26,6 +26,7 @@ from .nrPRBS import nrPRBS
 from .nrSymbolModulate import nrSymbolModulate
 from .nrRateMatchLDPC import nrRateMatchLDPC
 from .nrRateRecoverLDPC import nrRateRecoverLDPC
+from .nrLDPCEncode import nrLDPCEncode
 
 from .configs.nrCarrierConfig import nrCarrierConfig
 from .configs.nrNumerologyConfig import nrNumerologyConfig
