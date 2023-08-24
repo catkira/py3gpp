@@ -68,7 +68,7 @@ def getZlist():
     Zlist += list(range(72, 129, 8))
     Zlist += list(range(144, 257, 16))
     Zlist += list(range(288, 385, 32))
-    return Zlist
+    return np.array(Zlist).astype(int)
 
 def getCBSInfo(B, bgn):
     if bgn == 1:
