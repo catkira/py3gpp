@@ -1,7 +1,7 @@
 import numpy as np
 import scipy as sp
 from importlib_resources import files, as_file # importlib.resources only works for Python >= 3.9
-from py3gpp.nrDLSCHInfo import getZlist
+from py3gpp.nrDLSCHInfo import getZlist, getZarray
 from py3gpp import codes
 
 # This function is from Sionna
@@ -74,7 +74,8 @@ def nrLDPCEncode(cbs, bgn):
     assert len(cbs.shape) == 2, 'cbs must be a 2-dimensional matrix'
     K = cbs.shape[0]  # length of a code segment
     C = cbs.shape[1]  # number of code segments
-    
+    assert 11 < K < 8449, 'K must be 11 < K < 8449'
+
     # calculate Zc
     if bgn == 1:
         nsys = 22
@@ -89,13 +90,43 @@ def nrLDPCEncode(cbs, bgn):
     N = int(Zc * ncwnodes)
     codedcbs = np.zeros((N + 2 * Zc, C))
 
+    # find i_ls
+    if bgn == 1:
+        k_b = 22
+    elif bgn == 2:
+        if K > 640:
+            k_b = 10
+        elif K > 560:
+            k_b = 9
+        elif K > 192:
+            k_b = 8
+        else:
+            k_b = 6
+    else:
+        assert False, f'bgn = {bgn} is not supported'
+
+    Zarray = getZarray()
+    min_val = 100000
+    i_ls = None
+    for i, s in enumerate(Zarray):
+        for s1 in s:
+            x = k_b * s1
+            if  x >= K:
+                # valid solution
+                if x < min_val:
+                    min_val = x
+                    i_ls = i
+    assert i is not None, 'could not find i_ls'
+    print(f'K = {K}, bgn = {bgn} => Zc = {Zc}, k_b = {k_b}, N = {N}, R = {K / N}, i_ls = {i_ls}')
+
     # replace filler bits with 0
     fill_indices = (cbs[:, 0] == -1)  # filler bits are at identical locations in every segment
     cbs[fill_indices, :] = 0
 
     # encode
-    bm = _load_basegraph(7, bgn)
+    bm = _load_basegraph(i_ls, bgn)
     pcm = _lift_basegraph(bm, Zc)
+    print(f'pcm = {pcm.shape[0]} x {pcm.shape[1]} matrix')
 
     # set filler bits back to -1
     fill_indices_out = np.append(fill_indices, np.repeat(False, N + 2 * Zc - K))
@@ -115,4 +146,4 @@ if __name__ == '__main__':
     fillers = (-1) * np.ones((F, C))
     cbs = np.vstack((cbs, fillers))
     codedcbs = nrLDPCEncode(cbs, bgn)
-    print(codedcbs.shape)
+    assert codedcbs.shape == (12800, 2)
