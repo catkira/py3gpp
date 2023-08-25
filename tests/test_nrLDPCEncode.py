@@ -10,8 +10,9 @@ def test_nrLDPCEncode(K, C, F, bgn):
     cbs = np.random.randint(2, size = (K - F, C))
     fillers = (-1) * np.ones((F, C))
     cbs = np.vstack((cbs, fillers))
-    codedcbs = nrLDPCEncode(cbs, bgn)
-    # TODO: add asserts
+    codedcbs_1 = nrLDPCEncode(cbs.copy(), bgn, algo = 'sionna')
+    codedcbs_2 = nrLDPCEncode(cbs.copy(), bgn, algo = 'thangaraj')
+    assert np.array_equal(codedcbs_1, codedcbs_2)
 
 if __name__ == '__main__':
     bgn = 2

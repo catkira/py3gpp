@@ -201,7 +201,46 @@ def _encode(s, pcm_a, pcm_b_inv, pcm_c1, pcm_c2):
 
     return c
 
-def nrLDPCEncode(cbs, bgn):
+def _mul_sh(x, k):
+    if k == -1:
+        return np.zeros(len(x))
+    return np.roll(x, -int(k))
+
+
+# this is like shown by Prof. Thangaraj in this video
+# https://www.youtube.com/watch?v=QJwQi06Fm3M
+# this is also how it would be done in hardware
+def _encode_thangaraj(B, Zc, msg):
+    M, N = B.shape
+    cw = np.zeros(N * Zc)
+    cw[:(N - M) * Zc] = msg # it's a systematic code
+
+    temp = np.zeros(Zc, int)
+    for i in range(4):
+        for j in range(N - M):
+            temp = np.mod(temp + _mul_sh(msg[j * Zc :][:Zc], B[i, j]), 2)
+    
+    p1_sh = B[1, N - M] if B[2, N - M] == -1 else B[2, N - M]
+    cw[(N - M) * Zc :][: Zc] = _mul_sh(temp, Zc - p1_sh)
+
+    # find p2, p3, p4
+    for i in range(3):
+        temp = np.zeros(Zc, int)
+        for j in range(N - M + i + 1):
+            temp = np.mod(temp + _mul_sh(cw[j * Zc :][:Zc], B[i, j]), 2)
+        cw[(N - M + i + 1) * Zc :][: Zc] = temp
+
+    # remaining parities
+    for i in range(4, M):
+        temp = np.zeros(Zc, int)
+        for j in range(N - M + 4):
+            temp = np.mod(temp + _mul_sh(cw[j * Zc :][:Zc], B[i, j]), 2)
+        cw[(N - M + i) * Zc :][: Zc] = temp
+
+    return cw
+
+
+def nrLDPCEncode(cbs, bgn, algo = 'sionna'):
     assert len(cbs.shape) == 2, 'cbs must be a 2-dimensional matrix'
     K = cbs.shape[0]  # length of a code segment
     C = cbs.shape[1]  # number of code segments
@@ -248,7 +287,7 @@ def nrLDPCEncode(cbs, bgn):
                     min_val = x
                     i_ls = i
     assert i is not None, 'could not find i_ls'
-    print(f'K = {K}, bgn = {bgn} => Zc = {Zc}, k_b = {k_b}, N = {N}, R = {K / N}, i_ls = {i_ls}')
+    # print(f'K = {K}, bgn = {bgn} => Zc = {Zc}, k_b = {k_b}, N = {N}, R = {K / N}, i_ls = {i_ls}')
 
     # replace filler bits with 0
     fill_indices = (cbs[:, 0] == -1)  # filler bits are at identical locations in every segment
@@ -256,11 +295,23 @@ def nrLDPCEncode(cbs, bgn):
 
     # encode
     bm = _load_basegraph(i_ls, bgn)
-    pcm = _lift_basegraph(bm, Zc)
-    pcm_a, pcm_b_inv, pcm_c1, pcm_c2 = _gen_submat(bm, k_b, Zc, bgn)
-    print(f'pcm = {pcm.shape[0]} x {pcm.shape[1]} matrix')
-    for i in range(cbs.shape[1]):
-        codedcbs[:, i] = _encode(cbs[:, i], pcm_a, pcm_b_inv, pcm_c1, pcm_c2)
+
+    if algo == 'sionna':
+        pcm = _lift_basegraph(bm, Zc)
+        pcm_a, pcm_b_inv, pcm_c1, pcm_c2 = _gen_submat(bm, k_b, Zc, bgn)
+        # print(f'pcm = {pcm.shape[0]} x {pcm.shape[1]} matrix')
+        for i in range(cbs.shape[1]):
+            codedcbs[:, i] = _encode(cbs[:, i], pcm_a, pcm_b_inv, pcm_c1, pcm_c2)
+
+    elif algo == 'thangaraj':
+        for i in range(cbs.shape[1]):
+            codedcbs[:, i] = _encode_thangaraj(bm, Zc, cbs[:, i])
+
+    # for i in range(cbs.shape[1]):
+    #     if not _check_cw(bm, Zc, codedcbs[: , i]):
+    #         print(f'Error: cw {i} is not valid')
+    #     else:
+    #         print(f'cw {i} is valid')
 
     # set filler bits back to -1
     fill_indices_out = np.append(fill_indices, np.repeat(False, N + 2 * Zc - K))
@@ -271,14 +322,28 @@ def nrLDPCEncode(cbs, bgn):
 
     return codedcbs
 
+def _check_cw(B, Zc, cw):
+    M, N = B.shape
+    syn = np.zeros(M * Zc)
+    for i in range(M):
+        for j in range(N):
+            syn[i * Zc :][: Zc] = np.mod(syn[i * Zc :][: Zc] + _mul_sh(cw[j * Zc :][: Zc], B[i, j]), 2)
+    return not np.any(syn)
+
 if __name__ == '__main__':
     bgn = 2
     C = 2
     K = 2560
     F = 36
+
     cbs = np.ones((K - F, C))
     cbs[0:10] = 0
     fillers = (-1) * np.ones((F, C))
     cbs = np.vstack((cbs, fillers))
-    codedcbs = nrLDPCEncode(cbs, bgn)
-    assert codedcbs.shape == (12800, 2)
+    codedcbs_1 = nrLDPCEncode(cbs.copy(), bgn, algo = 'sionna')
+    
+    codedcbs_2 = nrLDPCEncode(cbs, bgn, algo = 'thangaraj')
+    
+    assert codedcbs_1.shape == (12800, 2)
+    assert codedcbs_2.shape == (12800, 2)
+    assert np.array_equal(codedcbs_1, codedcbs_2)
