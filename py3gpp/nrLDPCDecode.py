@@ -28,7 +28,7 @@ def nrLDPCDecode(in_, bgn, maxNumIter):
     if bgn == 1:
         k_b = 22
     else:
-        if B > 640:
+        if B > 640: # TODO: is it ok to use B instead of N here?
             k_b = 10
         elif B > 560:
             k_b = 9
