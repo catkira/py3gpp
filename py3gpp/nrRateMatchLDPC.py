@@ -51,16 +51,17 @@ def nrRateMatchLDPC(in_, outlen, rv, mod, nLayers):
             k0 = np.floor(43 * Ncb / N) * Zc
     k0 = int(k0)
     rematched = np.empty(0)
-    for r in np.arange(C):
-        if r <= C - np.mod(outlen / (nLayers * Qm), C) - 1:
+    for i in np.arange(C):
+        if i <= C - np.mod(outlen / (nLayers * Qm), C) - 1:
             E = Qm * nLayers * np.floor(outlen / (Qm * nLayers * C)).astype(int)
         else:
             E = Qm * nLayers * np.ceil(outlen / (Qm * nLayers * C)).astype(int)
-        rematched = np.append(rematched, _rateMatch(in_[:, r], E, k0, Ncb, Qm))
+        rematched = np.append(rematched, _rateMatch(in_[:, i], E, k0, Ncb, Qm))
 
     return rematched
 
 def _rateMatch(d, E, k0, Ncb, Qm):
+    # E is number of bits after rate matching
     N_filler_bits = np.count_nonzero(d[:Ncb] == -1)
 
     d = np.tile(d, np.ceil(E / (len(d[:Ncb]) - N_filler_bits)).astype(int))
