@@ -72,14 +72,13 @@ def nrLDPCDecode(in_, bgn, maxNumIter):
             Ri = 0
             for lyr in range(mb):
                 ti = 0 # number of non -1 in row = lyr
-                for col in range(nb):
-                    if bm[lyr, col] != -1:
-                        # subtraction
-                        L[col * Zc :][: Zc] -= R[Ri, :]
-                        # row alignment and store in treg
-                        treg[ti, :] = _mul_sh(L[col * Zc :][: Zc], bm[lyr, col])
-                        ti += 1
-                        Ri += 1
+                for col in np.where(bm[lyr, :] != -1)[0]:
+                    # subtraction
+                    L[col * Zc :][: Zc] -= R[Ri, :]
+                    # row alignment and store in treg
+                    treg[ti, :] = _mul_sh(L[col * Zc :][: Zc], bm[lyr, col])
+                    ti += 1
+                    Ri += 1
                 # minsum on treg
                 for i1 in range(Zc):
                     pos = np.argmin(np.abs(treg[:ti, i1]))
@@ -96,14 +95,13 @@ def nrLDPCDecode(in_, bgn, maxNumIter):
                 # column alignment, addition and store in R
                 Ri -= ti # reset the storage counter
                 ti = 0
-                for col in range(nb):
-                    if bm[lyr, col] != -1:
-                        # column alignment
-                        R[Ri, :] = _mul_sh(treg[ti, :], Zc - bm[lyr, col])
-                        # addition
-                        L[col * Zc :][: Zc] += R[Ri, :]
-                        Ri += 1
-                        ti += 1
+                for col in np.where(bm[lyr, :] != -1)[0]:
+                    # column alignment
+                    R[Ri, :] = _mul_sh(treg[ti, :], Zc - bm[lyr, col])
+                    # addition
+                    L[col * Zc :][: Zc] += R[Ri, :]
+                    Ri += 1
+                    ti += 1
 
             rxcbs[:, c_idx] = np.array(L[:K] < 0).astype(np.uint8)
             itr += 1
