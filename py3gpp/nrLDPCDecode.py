@@ -3,7 +3,7 @@ import scipy as sp
 from importlib_resources import files, as_file # importlib.resources only works for Python >= 3.9
 from py3gpp.nrDLSCHInfo import getZlist, getZarray
 from py3gpp import codes
-from py3gpp.nrLDPCEncode import _load_basegraph, _lift_basegraph
+from py3gpp.nrLDPCEncode import _load_basegraph, _lift_basegraph, _mul_sh
 
 def nrLDPCDecode(in_, bgn, maxNumIter):
     assert len(in_.shape) == 2, 'cbs must be a 2-dimensional matrix'
@@ -40,7 +40,7 @@ def nrLDPCDecode(in_, bgn, maxNumIter):
     # calulating R = K / B is another possibility and gives a slightly different number,
     # but R = K / N seems correct, because N is the transmitted number of bits
     R = K / N
-
+ 
     Zarray = getZarray()
     min_val = 100000
     i_ls = None
@@ -60,10 +60,57 @@ def nrLDPCDecode(in_, bgn, maxNumIter):
     num_cns = pcm.shape[0] # total number of check nodes
     num_vns = pcm.shape[1] # total number of variable nodes
 
-    # TODO do decoding iterations
-
+    Slen = np.sum(bm != -1)
+    R = np.zeros((Slen, Zc))
+    treg = np.zeros((np.max(np.sum(bm != -1, axis = 1)), Zc)) # register storage for minsum
+    mb, nb = bm.shape
     rxcbs = np.zeros((K, C), np.uint8)
-    actualniters = 0
+
+    for c_idx in range(C):
+        print(f'decoding segment {i} ...')
+        L = in_[:, c_idx]
+        itr = 0
+        while itr < maxNumIter:
+            Ri = 0
+            for lyr in range(mb):
+                ti = 0
+                for col in range(nb):
+                    if bm[lyr, col] != -1:
+                        # subtraction
+                        L[col * Zc :][: Zc] -= R[Ri, :]
+                        # row alignment and store in treg
+                        treg[ti, :] = _mul_sh(L[col * Zc :][: Zc], bm[lyr, col])
+                        ti += 1
+                        Ri += 1
+            # minsum on treg
+            for i1 in range(Zc):
+                pos = np.argmin(np.abs(treg[:ti, i1]))
+                min1 = np.abs(treg[pos, i1]) # first minimum
+                temp = np.concatenate((treg[: pos - 1], treg[pos + 1 :]))
+                min2 = np.min(np.abs(temp)) # second minimum
+                S = 2 * (treg[:ti, i1] >= 0) - 1
+                parity = np.prod(S)
+                treg[:, i1] = min1
+                treg[pos, i1] = min2
+                treg[:ti, i1] *= parity * S * treg[:ti, i1] # assign signs
+                # for j in range(ti):
+                    
+            # column alignment, addition and store in R
+            Ri = Ri - ti # reset the storage counter
+            ti = 0
+            for col in range(nb):
+                if bm[lyr, col] != -1:
+                    # column alignment 
+                    R[Ri, :] = _mul_sh(treg[ti, :], Zc - bm[lyr, col])
+                    # addition
+                    L[col * Zc :][: Zc] += R[Ri, :]
+                    Ri += 1
+                    ti += 1
+
+            rxcbs[:, c_idx] = np.array(L[:K] < 0).astype(np.uint8)
+            itr += 1
+
+    actualniters = itr
     return rxcbs, actualniters
 
 if __name__ == '__main__':
