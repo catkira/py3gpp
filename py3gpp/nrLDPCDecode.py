@@ -115,7 +115,8 @@ if __name__ == '__main__':
     C = 2
     K = 2560
     F = 36
-    cbs = np.ones((K - F, C))
+    # cbs = np.ones((K - F, C))
+    cbs = np.random.randint(2, size = (K - F, C))
     fillers = (-1) * np.ones((F, C))
     txcbs = np.vstack((cbs, fillers))
     from py3gpp import nrLDPCEncode
