@@ -21,13 +21,15 @@ def test_nrLDPCDecode(K, C, F, bgn, eng):
     txcodedcbs = eng.nrLDPCEncode(eng.double(cbs), eng.double(bgn))
     txcodedcbs = np.asarray(txcodedcbs)
 
+    fill_indices = (txcodedcbs[:, 0] == -1)
+
     # convert to rx soft bits
     rxcodedcbs = (1 - 2 * txcodedcbs.astype(np.double))
 
-    fill_indices = (rxcodedcbs[:, 0] == -1)
     rxcodedcbs[fill_indices, :] = 0
 
     [rxcbs, actualniters] = nrLDPCDecode(rxcodedcbs, bgn, 25)
+    np.array_equal(rxcbs, cbs)
 
 if __name__ == '__main__':
     _eng = matlab.engine.connect_matlab()

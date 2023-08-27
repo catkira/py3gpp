@@ -91,7 +91,7 @@ def nrLDPCDecode(in_, bgn, maxNumIter):
                     treg[:ti, i1] = min1
                     treg[pos, i1] = min2
                     treg[:ti, i1] *= parity * S # assign signs
-                    print(f'min1 = {min1}, min2 = {min2}, parity = {parity}')
+                    # print(f'min1 = {min1}, min2 = {min2}, parity = {parity}')
                         
                 # column alignment, addition and store in R
                 Ri -= ti # reset the storage counter
