@@ -38,8 +38,8 @@ def nrLDPCDecode(in_, bgn, maxNumIter):
             k_b = 6
     K = Zc * k_b
     # calulating R = K / B is another possibility and gives a slightly different number,
-    # but R = K / N seems correct, because N is the transmitted number of bits
-    R = K / N
+    # but rate = K / N seems correct, because N is the transmitted number of bits
+    rate = K / N
  
     Zarray = getZarray()
     min_val = 100000
@@ -53,7 +53,7 @@ def nrLDPCDecode(in_, bgn, maxNumIter):
                     min_val = x
                     i_ls = i
     assert i is not None, 'could not find i_ls'
-    print(f'block length B = {in_.shape[0]}, number of information bits K = {K}, code rate R = {R}, i_ls = {i_ls}')
+    print(f'block length B = {in_.shape[0]}, number of information bits K = {K}, code rate R = {rate}, i_ls = {i_ls}')
 
     bm = _load_basegraph(i_ls, bgn)
     # pcm = _lift_basegraph(bm, Zc)
@@ -71,7 +71,7 @@ def nrLDPCDecode(in_, bgn, maxNumIter):
         while itr < maxNumIter:
             Ri = 0
             for lyr in range(mb):
-                ti = 0
+                ti = 0 # number of non -1 in row = lyr
                 for col in range(nb):
                     if bm[lyr, col] != -1:
                         # subtraction
@@ -80,29 +80,30 @@ def nrLDPCDecode(in_, bgn, maxNumIter):
                         treg[ti, :] = _mul_sh(L[col * Zc :][: Zc], bm[lyr, col])
                         ti += 1
                         Ri += 1
-            # minsum on treg
-            for i1 in range(Zc):
-                pos = np.argmin(np.abs(treg[:ti, i1]))
-                min1 = np.abs(treg[pos, i1]) # first minimum
-                temp = np.delete(treg[:, i1], pos)
-                min2 = np.min(np.abs(temp)) # second minimum
-                S = 2 * (treg[:ti, i1] >= 0) - 1
-                parity = np.prod(S)
-                treg[:, i1] = min1
-                treg[pos, i1] = min2
-                treg[:ti, i1] *= parity * S * treg[:ti, i1] # assign signs
-                    
-            # column alignment, addition and store in R
-            Ri = Ri - ti # reset the storage counter
-            ti = 0
-            for col in range(nb):
-                if bm[lyr, col] != -1:
-                    # column alignment
-                    R[Ri, :] = _mul_sh(treg[ti, :], Zc - bm[lyr, col])
-                    # addition
-                    L[col * Zc :][: Zc] += R[Ri, :]
-                    Ri += 1
-                    ti += 1
+                # minsum on treg
+                for i1 in range(Zc):
+                    pos = np.argmin(np.abs(treg[:ti, i1]))
+                    min1 = np.abs(treg[pos, i1]) # first minimum
+                    temp = np.delete(treg[:, i1], pos)
+                    min2 = np.min(np.abs(temp)) # second minimum
+                    S = 2 * (treg[:ti, i1] >= 0) - 1
+                    parity = np.prod(S)
+                    treg[:ti, i1] = min1
+                    treg[pos, i1] = min2
+                    treg[:ti, i1] *= parity * S # assign signs
+                    print(f'min1 = {min1}, min2 = {min2}, parity = {parity}')
+                        
+                # column alignment, addition and store in R
+                Ri -= ti # reset the storage counter
+                ti = 0
+                for col in range(nb):
+                    if bm[lyr, col] != -1:
+                        # column alignment
+                        R[Ri, :] = _mul_sh(treg[ti, :], Zc - bm[lyr, col])
+                        # addition
+                        L[col * Zc :][: Zc] += R[Ri, :]
+                        Ri += 1
+                        ti += 1
 
             rxcbs[:, c_idx] = np.array(L[:K] < 0).astype(np.uint8)
             itr += 1
@@ -122,13 +123,19 @@ if __name__ == '__main__':
     from py3gpp import nrLDPCEncode
     txcodedcbs = nrLDPCEncode(txcbs, bgn)
 
+    # replace filler bits with 0
+    fill_indices = (txcodedcbs[:, 0] == -1)
+
     # convert to rx soft bits
     rxcodedcbs = 1 - 2 * txcodedcbs.astype(np.double)
 
-    # replace filler bits with 0
-    fill_indices = (rxcodedcbs[:, 0] == -1)
     rxcodedcbs[fill_indices, :] = 0
 
-    [rxcbs, actualniters] = nrLDPCDecode(rxcodedcbs, bgn, 25)
+    import matlab.engine
+    _eng = matlab.engine.connect_matlab()
+    rxcbs2 = _eng.nrLDPCDecode(rxcodedcbs, bgn, 10)
+    _eng.quit()
+
+    [rxcbs, actualniters] = nrLDPCDecode(rxcodedcbs, bgn, 10)
     txcbs[-F:] = 0
     assert np.array_equal(rxcbs, txcbs)
