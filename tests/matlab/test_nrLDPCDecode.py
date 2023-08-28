@@ -13,7 +13,8 @@ def eng():
 @pytest.mark.parametrize("C", [1, 2, 3])
 @pytest.mark.parametrize("F", [36])
 @pytest.mark.parametrize("bgn", [2])
-def test_nrLDPCDecode(K, C, F, bgn, eng):
+@pytest.mark.parametrize("vectorize", [0, 1])
+def test_nrLDPCDecode(K, C, F, bgn, vectorize, eng):
     # cbs = np.ones((K - F, C))
     cbs = np.random.randint(2, size = (K - F, C))
     fillers = (-1) * np.ones((F, C))
@@ -28,7 +29,7 @@ def test_nrLDPCDecode(K, C, F, bgn, eng):
 
     rxcodedcbs[fill_indices, :] = 0
 
-    [rxcbs, actualniters] = nrLDPCDecode(rxcodedcbs, bgn, 25)
+    [rxcbs, actualniters] = nrLDPCDecode(rxcodedcbs.copy(), bgn, 20, vectorize = vectorize)
     np.array_equal(rxcbs, cbs)
 
 if __name__ == '__main__':
@@ -37,5 +38,5 @@ if __name__ == '__main__':
     C = 2
     K = 2560
     F = 36
-    test_nrLDPCDecode(K, C, F, bgn, _eng)
+    test_nrLDPCDecode(K, C, F, bgn, 0, _eng)
     _eng.quit()

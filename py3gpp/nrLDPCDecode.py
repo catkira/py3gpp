@@ -80,21 +80,21 @@ def nrLDPCDecode(in_, bgn, maxNumIter, vectorize = True):
                     ti += 1
                     Ri += 1
                 # minsum on treg
+                treg_short = treg[:ti, :]
                 if not vectorize:
                     for i1 in range(Zc):
-                        pos = np.argmin(np.abs(treg[:ti, i1]))
-                        min1 = np.abs(treg[pos, i1]) # first minimum
-                        temp = np.delete(treg[:, i1], pos)
+                        pos = np.argmin(np.abs(treg_short[:, i1]))
+                        min1 = np.abs(treg_short[pos, i1]) # first minimum
+                        temp = np.delete(treg_short[:, i1], pos)
                         min2 = np.min(np.abs(temp)) # second minimum
-                        S = 2 * (treg[:ti, i1] >= 0) - 1
+                        S = 2 * (treg_short[:, i1] >= 0) - 1
                         parity = np.prod(S)
-                        treg[:ti, i1] = min1
-                        treg[pos, i1] = min2
-                        treg[:ti, i1] *= parity * S # assign signs
+                        treg_short[:, i1] = min1
+                        treg_short[pos, i1] = min2
+                        treg_short[:, i1] *= parity * S # assign signs
                         # print(f'min1 = {min1}, min2 = {min2}, parity = {parity}')
                 else:
                     # vectorized version of minsum
-                    treg_short = treg[:ti, :]
                     pos = np.argmin(np.abs(treg_short), axis = 0)
                     idx = np.expand_dims(pos, axis=0)
                     min1 = np.take_along_axis(np.abs(treg_short), idx, axis = 0) # first minimum
