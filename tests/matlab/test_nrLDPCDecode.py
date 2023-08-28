@@ -13,7 +13,7 @@ def eng():
 @pytest.mark.parametrize("C", [1, 2, 3])
 @pytest.mark.parametrize("F", [36])
 @pytest.mark.parametrize("bgn", [2])
-@pytest.mark.parametrize("vectorize", [0, 1])
+@pytest.mark.parametrize("vectorize", [True, False])
 def test_nrLDPCDecode(K, C, F, bgn, vectorize, eng):
     # cbs = np.ones((K - F, C))
     cbs = np.random.randint(2, size = (K - F, C))

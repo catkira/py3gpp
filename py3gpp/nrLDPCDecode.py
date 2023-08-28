@@ -155,7 +155,7 @@ if __name__ == '__main__':
     print(f'decoding with matlab took {et - st} s')
 
     st = time.time()
-    [rxcbs, actualniters] = nrLDPCDecode(rxcodedcbs, bgn, 10)
+    [rxcbs, actualniters] = nrLDPCDecode(rxcodedcbs, bgn, 10, vectorize = True)
     et = time.time()
     txcbs[-F:] = 0
     print(f'decoding with python took {et - st} s')
