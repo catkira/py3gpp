@@ -80,17 +80,35 @@ def nrLDPCDecode(in_, bgn, maxNumIter):
                     ti += 1
                     Ri += 1
                 # minsum on treg
-                for i1 in range(Zc):
-                    pos = np.argmin(np.abs(treg[:ti, i1]))
-                    min1 = np.abs(treg[pos, i1]) # first minimum
-                    temp = np.delete(treg[:, i1], pos)
-                    min2 = np.min(np.abs(temp)) # second minimum
-                    S = 2 * (treg[:ti, i1] >= 0) - 1
-                    parity = np.prod(S)
-                    treg[:ti, i1] = min1
-                    treg[pos, i1] = min2
-                    treg[:ti, i1] *= parity * S # assign signs
-                    # print(f'min1 = {min1}, min2 = {min2}, parity = {parity}')
+                if False:
+                    for i1 in range(Zc):
+                        pos = np.argmin(np.abs(treg[:ti, i1]))
+                        min1 = np.abs(treg[pos, i1]) # first minimum
+                        temp = np.delete(treg[:, i1], pos)
+                        min2 = np.min(np.abs(temp)) # second minimum
+                        S = 2 * (treg[:ti, i1] >= 0) - 1
+                        parity = np.prod(S)
+                        treg[:ti, i1] = min1
+                        treg[pos, i1] = min2
+                        treg[:ti, i1] *= parity * S # assign signs
+                        # print(f'min1 = {min1}, min2 = {min2}, parity = {parity}')
+                else:
+                    # vectorized version of minsum
+                    pos = np.argmin(np.abs(treg[:ti, :]), axis = 0)
+                    min1 = np.abs(np.take(treg, pos)) # first minimum
+                    temp = np.copy(treg[:ti,:])
+                    for i in range(Zc):
+                        temp[pos[i]] = np.inf
+
+                    min2 = np.min(np.abs(temp), axis = 0) # second minimum
+                    S = 2 * (treg[:ti, :] >= 0) - 1
+                    parity = np.prod(S, axis = 0)
+                    treg[:ti, :] = np.reshape(np.tile(min1, ti), (ti, Zc))
+                    for i in range(Zc):
+                        treg[:ti, i] = min2[pos[i]]
+                    # treg[pos, :] = min2
+                    # np.put_along_axis(treg, pos, min2, axis = 0)
+                    treg[:ti, :] *= parity * S # assign signs
                         
                 # column alignment, addition and store in R
                 Ri -= ti # reset the storage counter
@@ -129,11 +147,19 @@ if __name__ == '__main__':
 
     rxcodedcbs[fill_indices, :] = 0
 
+    import time
+
     import matlab.engine
     _eng = matlab.engine.connect_matlab()
+    st = time.time()
     rxcbs2 = _eng.nrLDPCDecode(rxcodedcbs, bgn, 10)
+    et = time.time()
     _eng.quit()
+    print(f'decoding with matlab took {et - st} s')
 
+    st = time.time()
     [rxcbs, actualniters] = nrLDPCDecode(rxcodedcbs, bgn, 10)
+    et = time.time()
     txcbs[-F:] = 0
+    print(f'decoding with python took {et - st} s')
     assert np.array_equal(rxcbs, txcbs)
