@@ -5,7 +5,7 @@ from py3gpp.nrDLSCHInfo import getZlist, getZarray
 from py3gpp import codes
 from py3gpp.nrLDPCEncode import _load_basegraph, _lift_basegraph, _mul_sh
 
-def nrLDPCDecode(in_, bgn, maxNumIter):
+def nrLDPCDecode(in_, bgn, maxNumIter, vectorize = True):
     assert len(in_.shape) == 2, 'cbs must be a 2-dimensional matrix'
     C = in_.shape[1]  # number of code block segments
 
@@ -80,7 +80,7 @@ def nrLDPCDecode(in_, bgn, maxNumIter):
                     ti += 1
                     Ri += 1
                 # minsum on treg
-                if False:
+                if not vectorize:
                     for i1 in range(Zc):
                         pos = np.argmin(np.abs(treg[:ti, i1]))
                         min1 = np.abs(treg[pos, i1]) # first minimum
@@ -94,28 +94,25 @@ def nrLDPCDecode(in_, bgn, maxNumIter):
                         # print(f'min1 = {min1}, min2 = {min2}, parity = {parity}')
                 else:
                     # vectorized version of minsum
-                    pos = np.argmin(np.abs(treg[:ti, :]), axis = 0)
-                    min1 = np.abs(np.take(treg, pos)) # first minimum
-                    temp = np.copy(treg[:ti,:])
-                    for i in range(Zc):
-                        temp[pos[i]] = np.inf
-
-                    min2 = np.min(np.abs(temp), axis = 0) # second minimum
-                    S = 2 * (treg[:ti, :] >= 0) - 1
+                    treg_short = treg[:ti, :]
+                    pos = np.argmin(np.abs(treg_short), axis = 0)
+                    idx = np.expand_dims(pos, axis=0)
+                    min1 = np.take_along_axis(np.abs(treg_short), idx, axis = 0) # first minimum
+                    treg_short_2 = treg_short.copy()
+                    np.put_along_axis(treg_short_2, idx, np.inf, axis = 0)
+                    min2 = np.min(np.abs(treg_short_2), axis = 0) # second minimum
+                    S = 2 * (treg_short >= 0) - 1
                     parity = np.prod(S, axis = 0)
-                    treg[:ti, :] = np.reshape(np.tile(min1, ti), (ti, Zc))
-                    for i in range(Zc):
-                        treg[:ti, i] = min2[pos[i]]
-                    # treg[pos, :] = min2
-                    # np.put_along_axis(treg, pos, min2, axis = 0)
-                    treg[:ti, :] *= parity * S # assign signs
+                    treg_short = np.reshape(np.tile(min1, ti), (ti, Zc))
+                    np.put_along_axis(treg_short, idx, min2, axis=0)
+                    treg_short *= np.matmul(S, np.diag(parity))
                         
                 # column alignment, addition and store in R
                 Ri -= ti # reset the storage counter
                 ti = 0
                 for col in np.where(bm[lyr, :] != -1)[0]:
                     # column alignment
-                    R[Ri, :] = _mul_sh(treg[ti, :], Zc - bm[lyr, col])
+                    R[Ri, :] = _mul_sh(treg_short[ti, :], Zc - bm[lyr, col])
                     # addition
                     L[col * Zc :][: Zc] += R[Ri, :]
                     Ri += 1
@@ -152,7 +149,7 @@ if __name__ == '__main__':
     import matlab.engine
     _eng = matlab.engine.connect_matlab()
     st = time.time()
-    rxcbs2 = _eng.nrLDPCDecode(rxcodedcbs, bgn, 10)
+    rxcbs2 = _eng.nrLDPCDecode(rxcodedcbs, bgn, 10, 'Termination', 'max')
     et = time.time()
     _eng.quit()
     print(f'decoding with matlab took {et - st} s')
