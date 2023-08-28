@@ -5,7 +5,8 @@ from py3gpp.nrDLSCHInfo import getZlist, getZarray
 from py3gpp import codes
 from py3gpp.nrLDPCEncode import _load_basegraph, _lift_basegraph, _mul_sh
 
-def nrLDPCDecode(in_, bgn, maxNumIter, vectorize = True):
+def nrLDPCDecode(in_, bgn, maxNumIter, Algorithm = 'Layered belief propagation', ScalingFactor = 0.75, Offset = 0.5, vectorize = True):
+    assert Algorithm in ['Layered belief propagation', 'Normalized min-sum', 'Offset min-sum'], f'Algorithm {Algorithm} is not supported'
     assert len(in_.shape) == 2, 'cbs must be a 2-dimensional matrix'
     C = in_.shape[1]  # number of code block segments
 
@@ -61,6 +62,12 @@ def nrLDPCDecode(in_, bgn, maxNumIter, vectorize = True):
     Slen = np.sum(bm != -1)
     mb, nb = bm.shape
     rxcbs = np.zeros((K, C), np.uint8)
+    if Algorithm == 'Layered belief propagation':
+        algo = 0
+    elif Algorithm == 'Normalized min-sum':
+        algo = 1
+    elif Algorithm == 'Offset min-sum':
+        algo = 2
 
     for c_idx in range(C):
         print(f'decoding segment {c_idx} ...')
@@ -87,6 +94,9 @@ def nrLDPCDecode(in_, bgn, maxNumIter, vectorize = True):
                         min1 = np.abs(treg_short[pos, i1]) # first minimum
                         temp = np.delete(treg_short[:, i1], pos)
                         min2 = np.min(np.abs(temp)) # second minimum
+                        if algo == 1:
+                            min1 *= ScalingFactor
+                            min2 *= ScalingFactor
                         S = 2 * (treg_short[:, i1] >= 0) - 1
                         parity = np.prod(S)
                         treg_short[:, i1] = min1
@@ -101,6 +111,9 @@ def nrLDPCDecode(in_, bgn, maxNumIter, vectorize = True):
                     treg_short_2 = treg_short.copy()
                     np.put_along_axis(treg_short_2, idx, np.inf, axis = 0)
                     min2 = np.min(np.abs(treg_short_2), axis = 0) # second minimum
+                    if algo == 1:
+                        min1 *= ScalingFactor
+                        min2 *= ScalingFactor
                     S = 2 * (treg_short >= 0) - 1
                     parity = np.prod(S, axis = 0)
                     treg_short = np.reshape(np.tile(min1, ti), (ti, Zc))
@@ -149,13 +162,13 @@ if __name__ == '__main__':
     import matlab.engine
     _eng = matlab.engine.connect_matlab()
     st = time.time()
-    rxcbs2 = _eng.nrLDPCDecode(rxcodedcbs, bgn, 10, 'Termination', 'max')
+    rxcbs2 = _eng.nrLDPCDecode(rxcodedcbs, bgn, 10, 'Termination', 'max', 'Algorithm', 'Layered belief propagation')
     et = time.time()
     _eng.quit()
     print(f'decoding with matlab took {et - st} s')
 
     st = time.time()
-    [rxcbs, actualniters] = nrLDPCDecode(rxcodedcbs, bgn, 10, vectorize = True)
+    [rxcbs, actualniters] = nrLDPCDecode(rxcodedcbs, bgn, 10,  Algorithm = 'Normalized min-sum', vectorize = True)
     et = time.time()
     txcbs[-F:] = 0
     print(f'decoding with python took {et - st} s')
