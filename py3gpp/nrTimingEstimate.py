@@ -15,7 +15,7 @@ def nrTimingEstimate(
     CyclicPrefix="normal",
     Nfft=None,
     SampleRate=None,
-    CarrierFrequency=None
+    CarrierFrequency=0
 ):
     refWaveform, _ = nrOFDMModulate(
         grid=refGrid, scs=scs, initialNSlot=initialNSlot, SampleRate=SampleRate, Nfft=Nfft,
