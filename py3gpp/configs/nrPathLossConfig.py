@@ -37,10 +37,8 @@ class nrPathLossConfig:
         self.OptionalModel = OptionalModel
 
 
-# Create an instance of NrPathLossConfig
-pathlossconf = nrPathLossConfig()
-
 # Example usage
+# pathlossconf = nrPathLossConfig()
 # print("Scenario:", pathlossconf.Scenario)
 # print("BuildingHeight:", pathlossconf.BuildingHeight)
 # print("StreetWidth:", pathlossconf.StreetWidth)
