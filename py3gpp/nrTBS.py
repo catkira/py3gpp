@@ -93,8 +93,7 @@ def nrTBS(mod, nlayers, nPRB, NREPerPRB, tcr, xOh=0, tbScaling=1):
 
     n_info = []
     for i in range(len(mod)):
-        n_re = min(156, (NREPerPRB - xOh)) * \
-            (nPRB // len(mod))  # Divide nPRB into equal parts
+        n_re = min(156, (NREPerPRB - xOh)) * (nPRB // len(mod))  # Divide nPRB into equal parts
         n_info.append(tbScaling * n_re * tcr[i] * bits_per_symbol[i] * nlayers)
 
     tbs = []
@@ -115,16 +114,14 @@ def nrTBS(mod, nlayers, nPRB, NREPerPRB, tcr, xOh=0, tbScaling=1):
                 n_info_ = max(3840, (2**n) * round((n_info[i] - 24) / (2**n)))
                 if tcr[i] <= 0.25:
                     c = np.ceil(abs((n_info_ + 24) / (3816)))
-                    n_info[i] = (
-                        8 * c * (np.ceil(abs((n_info_ + 24) / (8 * c))))) - 24
+                    n_info[i] = (8 * c * np.ceil(abs((n_info_ + 24) / (8 * c)))) - 24
                 else:
                     if n_info_ > 8424:
                         c = np.ceil(abs((n_info_ + 24) / (8424)))
-                        n_info[i] = (
-                            8 * c * (np.ceil(abs((n_info_ + 24) / (8 * c))))) - 24
+                        n_info[i] = (8 * c * np.ceil(abs((n_info_ + 24) / (8 * c)))) - 24
                     else:
                         n_info[i] = (
-                            8 * (np.ceil(abs((n_info_ + 24) / (8))))) - 24
+                            8 * np.ceil(abs((n_info_ + 24) / 8))) - 24
 
             tbs.append(int(n_info[i]))
 
