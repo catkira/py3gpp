@@ -25,4 +25,11 @@ See Matlab documentation of equivalent function
 * spaces on each side of math operators like +-*/
 ## Testing
 * Each function must have a hard-coded test that can run on CI
-* Each function should have a matlab test that can run on a machine with matlab license
+* Each function should have a Matlab test that can run on a machine with Matlab license
+* Hard-coded test cases should cover the most common argument combinations
+* Matlab tests should cover more argument combinations than the hard-coded tests
+## Function interface
+* Functions should return numpy arrays if the return value is an array
+* Functions should accept numpy arrays and python lists if an input value is an array
+* Config objects should have a getter and setter method and declare the internal variable with underscore at the beginning
+* Input arguments should be checked and a 'ValueError' or 'TypeError' should be raised if an argument is not correct
