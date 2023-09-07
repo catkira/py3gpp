@@ -5,8 +5,6 @@ import numpy as np
 import math
 from configs.nrPathLossConfig import nrPathLossConfig
 
-pathlossconf = nrPathLossConfig()
-
 
 def nrPathLoss(pathlossconf, freq, los, bs, ue):
 
@@ -24,12 +22,12 @@ def nrPathLoss(pathlossconf, freq, los, bs, ue):
     if pathlossconf.Scenario == 'RMa':
 
         if not isinstance(los, (bool, int)):
-            # TODO Multiple BSs and UEs
-            raise TypeError('Multiple BSs and UEs not yet supported.')
+            # TODO multi bs-ue link
+            raise TypeError('multi bs-ue link not yet supported.')
 
         else:
             c = 3e8  # Speed of light (m/s)
-            dist_bp = 2 * math.pi * bs[2] * ue[2] * freq / c
+            dist_bp = 2 * math.pi * bs[2] * ue[2] * (freq / c)
             dist_2d = np.sqrt((ue[0] - bs[0])**2 + (ue[1] - bs[1])**2)
             dist_3d = np.sqrt((dist_2d)**2 + (bs[2] - ue[2])**2)
 
@@ -40,24 +38,25 @@ def nrPathLoss(pathlossconf, freq, los, bs, ue):
 
             pathloss_one += 20 * \
                 math.log10(40 * math.pi * dist_3d * (freq/1e9) / 3)
-            pathloss_one += min((0.03 * pathlossconf.BuildingHeight)
-                                ** 1.72, 10) * math.log10(dist_3d)
+            pathloss_one += min((0.03 * (pathlossconf.BuildingHeight
+                                ** 1.72)), 10) * math.log10(dist_3d)
             pathloss_one += - \
-                min((0.044 * pathlossconf.BuildingHeight)**1.72, 14.77)
+                min((0.044 * (pathlossconf.BuildingHeight**1.72)), 14.77)
             pathloss_one += 0.002 * \
-                math.log10(pathlossconf.BuildingHeight * dist_3d)
+                math.log10(pathlossconf.BuildingHeight) * dist_3d
 
             if dist_2d <= dist_bp:
                 shadowfading_one = 4
+                pathloss_los = pathloss_one
+                shadowfading_los = shadowfading_one
 
             else:
                 pathloss_two += 10 * \
                     math.log10((10**(pathloss_one / 10)) * dist_bp)
                 pathloss_two += 40 * math.log10(dist_3d / dist_bp)
                 shadowfading_two = 6
-
-            pathloss_los = pathloss_one + pathloss_two + shadowfading_one + shadowfading_two
-            shadowfading_los = shadowfading_one + shadowfading_two
+                pathloss_los = pathloss_two
+                shadowfading_los = shadowfading_two
 
             if los in [True, 1]:  # LOS case
 
@@ -69,10 +68,10 @@ def nrPathLoss(pathlossconf, freq, los, bs, ue):
                 pathloss_nlos_ = 0
                 pathloss_nlos_ += 161.04
                 pathloss_nlos_ += - \
-                    (7.11 * math.log10(pathlossconf.StreetWidth))
+                    (7.1 * math.log10(pathlossconf.StreetWidth))
                 pathloss_nlos_ += 7.5 * math.log10(pathlossconf.BuildingHeight)
                 pathloss_nlos_ += - \
-                    (24.37 - (3.7*(pathlossconf.BuildingHeight /
+                    (24.37 - (3.7 * (pathlossconf.BuildingHeight /
                      bs[2])**2)) * math.log10(bs[2])
                 pathloss_nlos_ += (43.42 - (3.1 *
                                    math.log10(bs[2]))) * ((math.log10(dist_3d)) - 3)
@@ -83,7 +82,7 @@ def nrPathLoss(pathlossconf, freq, los, bs, ue):
 
                 pathloss_nlos = max(pathloss_los, pathloss_nlos_)
 
-                pathloss = pathloss_nlos + shadowfading_nlos
+                pathloss = pathloss_nlos
                 shadowfading = shadowfading_nlos
 
             else:
@@ -91,10 +90,16 @@ def nrPathLoss(pathlossconf, freq, los, bs, ue):
                 raise TypeError(
                     'los for single bs-ue link must be true, false, 1, 0')
 
+    else:
+
+        raise TypeError(
+            'This path loss model is not yet supported.')
+
     return pathloss, shadowfading
 
 
-# Example usage
+# # Example usage
+# pathlossconf = nrPathLossConfig()
 # pathlossconf.Scenario = "RMa"
 # pathlossconf.BuildingHeight = 7
 # pathlossconf.StreetWidth = 25
