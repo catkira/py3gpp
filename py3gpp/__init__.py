@@ -28,6 +28,7 @@ from .nrRateMatchLDPC import nrRateMatchLDPC
 from .nrRateRecoverLDPC import nrRateRecoverLDPC
 from .nrLDPCEncode import nrLDPCEncode
 from .nrLDPCDecode import nrLDPCDecode
+from .nrTBS import nrTBS
 
 from .configs.nrCarrierConfig import nrCarrierConfig
 from .configs.nrNumerologyConfig import nrNumerologyConfig
