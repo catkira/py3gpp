@@ -2,7 +2,6 @@
 # Ref: TS 38.214 Sections 5.1.3.2
 
 import numpy as np
-import math
 
 
 def nrTBS(mod, nlayers, nPRB, NREPerPRB, tcr, xOh=0, tbScaling=1):
@@ -106,26 +105,26 @@ def nrTBS(mod, nlayers, nPRB, NREPerPRB, tcr, xOh=0, tbScaling=1):
         else:
             # Calculate DL TBS for each codeword
             if n_info[i] <= 3824:
-                n = max(3, math.floor(abs(math.log2(n_info[i]) - 6)))
-                n_info_ = max(24, (2**n) * math.floor(abs(n_info[i] / (2**n))))
+                n = max(3, np.floor(abs(np.log2(n_info[i]) - 6)))
+                n_info_ = max(24, (2**n) * np.floor(abs(n_info[i] / (2**n))))
                 closest_tbs = min(filter(lambda tbs: tbs >= n_info_,
                                          tbs_values), key=lambda tbs: abs(tbs - n_info_))
                 n_info[i] = max(n_info_, closest_tbs)
             else:
-                n = math.floor(abs(math.log2(n_info[i] - 24) - 5))
+                n = np.floor(abs(np.log2(n_info[i] - 24) - 5))
                 n_info_ = max(3840, (2**n) * round((n_info[i] - 24) / (2**n)))
                 if tcr[i] <= 0.25:
-                    c = math.ceil(abs((n_info_ + 24) / (3816)))
+                    c = np.ceil(abs((n_info_ + 24) / (3816)))
                     n_info[i] = (
-                        8 * c * (math.ceil(abs((n_info_ + 24) / (8 * c))))) - 24
+                        8 * c * (np.ceil(abs((n_info_ + 24) / (8 * c))))) - 24
                 else:
                     if n_info_ > 8424:
-                        c = math.ceil(abs((n_info_ + 24) / (8424)))
+                        c = np.ceil(abs((n_info_ + 24) / (8424)))
                         n_info[i] = (
-                            8 * c * (math.ceil(abs((n_info_ + 24) / (8 * c))))) - 24
+                            8 * c * (np.ceil(abs((n_info_ + 24) / (8 * c))))) - 24
                     else:
                         n_info[i] = (
-                            8 * (math.ceil(abs((n_info_ + 24) / (8))))) - 24
+                            8 * (np.ceil(abs((n_info_ + 24) / (8))))) - 24
 
             tbs.append(int(n_info[i]))
 
