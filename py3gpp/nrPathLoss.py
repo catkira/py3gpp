@@ -35,14 +35,10 @@ def nrPathLoss(pathlossconf, freq, los, bs, ue):
             shadowfading_one = 0
             shadowfading_two = 0
 
-            pathloss_one += 20 * \
-                np.log10(40 * np.pi * dist_3d * (freq/1e9) / 3)
-            pathloss_one += min((0.03 * (pathlossconf.BuildingHeight
-                                ** 1.72)), 10) * np.log10(dist_3d)
-            pathloss_one += - \
-                min((0.044 * (pathlossconf.BuildingHeight**1.72)), 14.77)
-            pathloss_one += 0.002 * \
-                np.log10(pathlossconf.BuildingHeight) * dist_3d
+            pathloss_one += 20 * np.log10(40 * np.pi * dist_3d * (freq/1e9) / 3)
+            pathloss_one += min((0.03 * (pathlossconf.BuildingHeight ** 1.72)), 10) * np.log10(dist_3d)
+            pathloss_one += -min((0.044 * (pathlossconf.BuildingHeight**1.72)), 14.77)
+            pathloss_one += 0.002 * np.log10(pathlossconf.BuildingHeight) * dist_3d
 
             if dist_2d <= dist_bp:
                 shadowfading_one = 4
@@ -50,8 +46,7 @@ def nrPathLoss(pathlossconf, freq, los, bs, ue):
                 shadowfading_los = shadowfading_one
 
             else:
-                pathloss_two += 10 * \
-                    np.log10((10**(pathloss_one / 10)) * dist_bp)
+                pathloss_two += 10 * np.log10((10**(pathloss_one / 10)) * dist_bp)
                 pathloss_two += 40 * np.log10(dist_3d / dist_bp)
                 shadowfading_two = 6
                 pathloss_los = pathloss_two
@@ -66,16 +61,11 @@ def nrPathLoss(pathlossconf, freq, los, bs, ue):
 
                 pathloss_nlos_ = 0
                 pathloss_nlos_ += 161.04
-                pathloss_nlos_ += - \
-                    (7.1 * np.log10(pathlossconf.StreetWidth))
+                pathloss_nlos_ += -(7.1 * np.log10(pathlossconf.StreetWidth))
                 pathloss_nlos_ += 7.5 * np.log10(pathlossconf.BuildingHeight)
-                pathloss_nlos_ += - \
-                    (24.37 - (3.7 * (pathlossconf.BuildingHeight /
-                     bs[2])**2)) * np.log10(bs[2])
-                pathloss_nlos_ += (43.42 - (3.1 *
-                                   np.log10(bs[2]))) * ((np.log10(dist_3d)) - 3)
-                pathloss_nlos_ += (20 * np.log10(freq/1e9)) - \
-                    (3.2 * (np.log10(11.75 * ue[2])))**2 - 4.97
+                pathloss_nlos_ += -(24.37 - (3.7 * (pathlossconf.BuildingHeight / bs[2])**2)) * np.log10(bs[2])
+                pathloss_nlos_ += (43.42 - (3.1 * np.log10(bs[2]))) * ((np.log10(dist_3d)) - 3)
+                pathloss_nlos_ += (20 * np.log10(freq/1e9)) - (3.2 * (np.log10(11.75 * ue[2])))**2 - 4.97
 
                 shadowfading_nlos = 8
 
