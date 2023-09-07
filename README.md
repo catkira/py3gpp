@@ -21,8 +21,8 @@ See Matlab documentation of equivalent function
 
 # Coding Guideline
 ## Formatting
-### Screen width 120
-### spaces on each side of math operators like +-*/
+- Screen width 120
+- spaces on each side of math operators like +-*/
 ## Testing
-### Each function must have a hard-coded test that can run on CI
-### Each function should have a matlab test that can run on a machine with matlab license
+- Each function must have a hard-coded test that can run on CI
+- Each function should have a matlab test that can run on a machine with matlab license
