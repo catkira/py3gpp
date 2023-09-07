@@ -1,37 +1,63 @@
 # Ref: https://www.mathworks.com/help/5g/ref/nrpathlossconfig.html
 
-import numpy as np
+class nrPathLossConfig():
+    def __init__(self):
+        self._Scenario = 'UMa'
+        self._BuildingHeight = 5
+        self._StreetWidth = 20
+        self._EnvironmentHeight = 1
+        self._OptionalModel = 0
 
-def nrPathLossConfig(
-    Scenario='UMa',
-    BuildingHeight=5,
-    StreetWidth=20,
-    EnvironmentHeight=1,
-    OptionalModel=0
-):
-    # Check dependencies
-    if Scenario == 'RMa':
-        BuildingHeight = max(5, min(50, BuildingHeight))
-        StreetWidth = max(5, min(50, StreetWidth))
-    elif Scenario in ['UMa', 'UMi']:
-        if isinstance(EnvironmentHeight, (int, float)):
-            EnvironmentHeight = max(0, EnvironmentHeight)
-        elif isinstance(EnvironmentHeight, (list, np.ndarray)):
-            EnvironmentHeight = np.maximum(0, EnvironmentHeight)
-    else:
-        raise ValueError(
-            "Invalid Scenario. Supported values: 'UMa', 'UMi', 'RMa'")
+    @property
+    def Scenario(self):
+        return self._Scenario
 
-    OptionalModel = bool(OptionalModel)
+    @Scenario.setter
+    def Scenario(self, Scenario):
+        assert Scenario in ['UMa', 'UMi', 'RMa', 'InH', 'InF-SL', 'InF-DL', 'InF-SH', 'InF-DH',
+                            'InF-HH'], "The value must be in 'UMa', 'UMi', 'RMa', 'InH', 'InF-SL', 'InF-DL', 'InF-SH', 'InF-DH', or 'InF-HH'"
+        self._Scenario = Scenario
 
-    #TODO Indoor path loss model related configuration  - currently not defined in MATLAB docs
+    @property
+    def BuildingHeight(self):
+        return self._BuildingHeight
 
-    # Return the configured parameters
-    return {
-        'Scenario': Scenario,
-        'BuildingHeight': BuildingHeight,
-        'StreetWidth': StreetWidth,
-        'EnvironmentHeight': EnvironmentHeight,
-        'OptionalModel': OptionalModel
-    }
+    @BuildingHeight.setter
+    def BuildingHeight(self, BuildingHeight):
+        assert BuildingHeight >= 5 and BuildingHeight <= 50, "The value must be 5..50"
+        self._BuildingHeight = BuildingHeight
 
+    @property
+    def StreetWidth(self):
+        return self._StreetWidth
+
+    @StreetWidth.setter
+    def StreetWidth(self, StreetWidth):
+        assert StreetWidth >= 5 and StreetWidth <= 50, "The value must be 5..50"
+        self._StreetWidth = StreetWidth
+
+    @property
+    def EnvironmentHeight(self):
+        return self._EnvironmentHeight
+
+    @EnvironmentHeight.setter
+    def EnvironmentHeight(self, EnvironmentHeight):
+        self._EnvironmentHeight = EnvironmentHeight
+
+    @property
+    def OptionalModel(self):
+        return self._OptionalModel
+
+    @OptionalModel.setter
+    def OptionalModel(self, OptionalModel):
+        assert OptionalModel in [0, 1, True, False], "The value must be 0 / False or 1 / True"
+        self._OptionalModel = OptionalModel
+
+
+# # Example usage
+# pathlossconf = nrPathLossConfig()
+# print(f'Scenario: ', pathlossconf.Scenario)
+# print(f'BuildingHeight: ', pathlossconf.BuildingHeight)
+# print(f'StreetWidth: ', pathlossconf.StreetWidth)
+# print(f'EnvironmentHeight: ', pathlossconf.EnvironmentHeight)
+# print(f'OptionalModel: ', pathlossconf.OptionalModel)
