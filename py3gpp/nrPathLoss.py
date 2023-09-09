@@ -2,7 +2,7 @@
 # Ref: TR 38.901 Section 7.4.1
 
 import numpy as np
-from configs.nrPathLossConfig import nrPathLossConfig
+from py3gpp.configs.nrPathLossConfig import nrPathLossConfig
 
 
 def nrPathLoss(pathlossconf, freq, los, bs, ue):
