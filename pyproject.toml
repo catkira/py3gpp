@@ -5,8 +5,11 @@ line-length = 120
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools.package-data]
+py3gpp = ["codes/*.csv"]
+
 [project]
-version = "0.2.0"
+version = "0.2.1"
 authors = [
     {name = "Benjamin Menküc", email = "benjamin@menkuec.de"},
 ]
