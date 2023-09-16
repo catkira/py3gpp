@@ -241,10 +241,14 @@ def _encode_thangaraj(B, Zc, msg):
 
 
 def nrLDPCEncode(cbs, bgn, algo = 'sionna'):
-    assert len(cbs.shape) == 2, 'cbs must be a 2-dimensional matrix'
+    if algo not in ['sionna', 'thangaraj']:
+        raise TypeError('algo has to be "sionna" or "thangaraj"')
+    if len(cbs.shape) != 2:
+        raise TypeError('cbs must be a 2-dimensional matrix')
     K = cbs.shape[0]  # length of a code segment
     C = cbs.shape[1]  # number of code segments
-    assert 11 < K < 8449, 'K must be 11 < K < 8449'
+    if not (11 < K < 8449):
+        raise ValueError('K must be 11 < K < 8449')
 
     # calculate Zc
     if bgn == 1:
@@ -273,7 +277,7 @@ def nrLDPCEncode(cbs, bgn, algo = 'sionna'):
         else:
             k_b = 6
     else:
-        assert False, f'bgn = {bgn} is not supported'
+        raise ValueError(f'bgn = {bgn} is not supported')
 
     Zarray = getZarray()
     min_val = 100000

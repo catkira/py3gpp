@@ -6,8 +6,10 @@ from py3gpp import codes
 from py3gpp.nrLDPCEncode import _load_basegraph, _lift_basegraph, _mul_sh
 
 def nrLDPCDecode(in_, bgn, maxNumIter, Algorithm = 'Layered belief propagation', ScalingFactor = 0.75, Offset = 0.5, vectorize = True):
-    assert Algorithm in ['Layered belief propagation', 'Normalized min-sum', 'Offset min-sum'], f'Algorithm {Algorithm} is not supported'
-    assert len(in_.shape) == 2, 'cbs must be a 2-dimensional matrix'
+    if Algorithm not in ['Layered belief propagation', 'Normalized min-sum', 'Offset min-sum']:
+        raise ValueError(f'Algorithm {Algorithm} is not supported')
+    if len(in_.shape) != 2:
+        raise TypeError('cbs must be a 2-dimensional matrix')
     C = in_.shape[1]  # number of code block segments
 
     if bgn == 1:
@@ -16,10 +18,12 @@ def nrLDPCDecode(in_, bgn, maxNumIter, Algorithm = 'Layered belief propagation',
         ncwnodes = 50
 
     N = in_.shape[0]  # length of a code word
-    assert 0 < N < (316 * 384) + 1, 'N = {N} is an unsupported code length'
+    if not (0 < N < (316 * 384) + 1):
+        raise ValueError('N = {N} is an unsupported code length')
 
     Zc = int(N / ncwnodes)
-    assert Zc in getZlist(), f'Zc = {Zc} is not supported'
+    if not Zc in getZlist():
+        raise ValueError(f'Zc = {Zc} is not supported')
     assert Zc == N / ncwnodes, f'N = {N} and ncwnodes = {ncwnodes} is not a valid combination'
 
     # add punctured 2 * Zc bits
