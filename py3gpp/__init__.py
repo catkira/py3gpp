@@ -29,6 +29,9 @@ from .nrRateRecoverLDPC import nrRateRecoverLDPC
 from .nrLDPCEncode import nrLDPCEncode
 from .nrLDPCDecode import nrLDPCDecode
 from .nrTBS import nrTBS
+from .nrLayerMap import nrLayerMap
+from .nrCodeBlockSegmentLDPC import nrCodeBlockSegmentLDPC
+from .nrCodeBlockDesegmentLDPC import nrCodeBlockDesegmentLDPC
 
 from .configs.nrCarrierConfig import nrCarrierConfig
 from .configs.nrNumerologyConfig import nrNumerologyConfig
