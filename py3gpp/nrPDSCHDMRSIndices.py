@@ -25,7 +25,7 @@ def nrPDSCHDMRSIndices(cfg: nrPDSCHConfig):
     # Calculates occupied symbols numbers. Time positions
     occupied_syms = PDSCHDMRSSyms(cfg)
 
-    dmrs_indices = np.array([])
+    dmrs_indices = np.array([], int)
     for idx, sym in enumerate(occupied_syms):
         sym_offset = sym*frame_size
         dmrs_indices = np.append(dmrs_indices, (occupied_res + sym_offset))
