@@ -30,11 +30,20 @@ def nrChannelEstimate(rxGrid=None, refInd=None, refSym=None, refGrid=None, carri
 
     if True:
         # this one works best!
+        interp_vertical = False
         for col in range(N):
             idx = np.where(np.logical_and(refInd >= col * K, refInd < (col + 1) * K))[0]
             if len(idx) > 0:
                 sym_idx = refInd[idx] - col * K
                 H[:, col] = np.interp(np.arange(K), sym_idx, rxSym[idx] / refSym[idx])
+            else:
+                interp_vertical = True
+        if interp_vertical:
+            for row in range(K):
+                temp = H[row, :]
+                idx = np.where(temp != 0)[0]
+                H[row, :] = np.interp(np.arange(N), idx, temp[idx])
+
 
         # estimate noise variance
         mean = np.mean((np.abs(H[:, 1]), np.abs(H[:, 3])), axis=0)
