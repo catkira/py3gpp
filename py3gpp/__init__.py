@@ -32,6 +32,9 @@ from .nrTBS import nrTBS
 from .nrLayerMap import nrLayerMap
 from .nrCodeBlockSegmentLDPC import nrCodeBlockSegmentLDPC
 from .nrCodeBlockDesegmentLDPC import nrCodeBlockDesegmentLDPC
+from .nrPDSCHDMRSIndices import nrPDSCHDMRSIndices
+from .nrPDSCHDMRS import nrPDSCHDMRS
+from .nrPDSCH import nrPDSCH
 
 from .configs.nrCarrierConfig import nrCarrierConfig
 from .configs.nrNumerologyConfig import nrNumerologyConfig
