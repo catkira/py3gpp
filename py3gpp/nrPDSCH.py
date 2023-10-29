@@ -26,6 +26,6 @@ def nrPDSCH(cws, modulation, nlayers, nid, nrnti):
 
     # TODO
     # res_sym = nrLayerMap(res_sym, nlayers)
-    res_sym = np.hstack(res_sym)
+    # res_sym = np.hstack(res_sym)
 
     return np.array(res_sym)
