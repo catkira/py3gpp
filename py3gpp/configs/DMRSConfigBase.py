@@ -43,11 +43,11 @@ class DMRSConfigBase():
         self._DMRSAdditionalPosition = pos
 
      @property
-     def DMRSAdditionalPosition(self):
+     def DMRSLength(self):
         return self._DMRSLength
 
-     @DMRSAdditionalPosition.setter
-     def DMRSAdditionalPosition(self, pos):
+     @DMRSLength.setter
+     def DMRSLength(self, pos):
         assert pos in list(range(4))
         self._DMRSLength = pos
 

@@ -3,7 +3,8 @@ from .CommonConfig import CommonConfig
 
 class nrPDSCHConfig(PDSCHConfigBase, CommonConfig):
     def __init__(self):
-        super().__init__()
+        PDSCHConfigBase.__init__(self)
+        CommonConfig.__init__(self)
         self._Nid = 0
         self._NSizeBWP = []
         self._NStartBWP = []
