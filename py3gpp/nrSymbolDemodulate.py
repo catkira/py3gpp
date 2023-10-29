@@ -39,7 +39,7 @@ def nrSymbolDemodulate(input, mod, nVar=1e-10, DecisionType="soft"):
         elif mod == "QPSK":
             output = np.append(output, np.real(symbol))
             output = np.append(output, np.imag(symbol))
-        elif mod == "QAM16":
+        elif mod == "16QAM":
             output = np.append(output, np.real(symbol))
             output = np.append(output, np.imag(symbol))
             output = np.append(output, -(np.abs(np.real(symbol)) - 2 / np.sqrt(10)))
@@ -47,7 +47,7 @@ def nrSymbolDemodulate(input, mod, nVar=1e-10, DecisionType="soft"):
 
     if DecisionType == "soft":
         output /= nVar / np.exp(1)
-        if mod == "QAM16":
+        if mod == "16QAM":
             output /= 2
     else:
         output = (output > 0).astype(int)
