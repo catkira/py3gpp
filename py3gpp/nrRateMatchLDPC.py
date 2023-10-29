@@ -50,7 +50,7 @@ def nrRateMatchLDPC(in_, outlen, rv, mod, nLayers):
         elif rv == 3:
             k0 = np.floor(43 * Ncb / N) * Zc
     k0 = int(k0)
-    rematched = np.empty(0)
+    rematched = np.empty(0, int)
     for i in np.arange(C):
         if i <= C - np.mod(outlen / (nLayers * Qm), C) - 1:
             E = Qm * nLayers * np.floor(outlen / (Qm * nLayers * C)).astype(int)
