@@ -35,6 +35,7 @@ from .nrCodeBlockDesegmentLDPC import nrCodeBlockDesegmentLDPC
 from .nrPDSCHDMRSIndices import nrPDSCHDMRSIndices
 from .nrPDSCHDMRS import nrPDSCHDMRS
 from .nrPDSCH import nrPDSCH
+from .nrPDSCHDecode import nrPDSCHDecode
 
 from .configs.nrCarrierConfig import nrCarrierConfig
 from .configs.nrNumerologyConfig import nrNumerologyConfig
