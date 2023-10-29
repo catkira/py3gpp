@@ -36,6 +36,7 @@ from .nrPDSCHDMRSIndices import nrPDSCHDMRSIndices
 from .nrPDSCHDMRS import nrPDSCHDMRS
 from .nrPDSCH import nrPDSCH
 from .nrPDSCHDecode import nrPDSCHDecode
+from .nrDLSCHInfo import nrDLSCHInfo
 
 from .configs.nrCarrierConfig import nrCarrierConfig
 from .configs.nrNumerologyConfig import nrNumerologyConfig
