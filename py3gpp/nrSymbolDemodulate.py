@@ -50,5 +50,5 @@ def nrSymbolDemodulate(input, mod, nVar=1e-10, DecisionType="soft"):
         if mod == "16QAM":
             output /= 2
     else:
-        output = (output > 0).astype(int)
+        output = (output < 0).astype(int)
     return output
