@@ -5,11 +5,15 @@ import numpy as np
 
 from py3gpp.nrPDSCHDMRS import PDSCHDMRSSyms
 from py3gpp.configs.nrPDSCHConfig import nrPDSCHConfig
+from py3gpp.configs.nrCarrierConfig import nrCarrierConfig
 
-def nrPDSCHDMRSIndices(cfg: nrPDSCHConfig):
-    frame_begin = cfg.NRBSize * min(cfg.PRBSet)
-    frame_end = cfg.NRBSize * (max(cfg.PRBSet)+1)
-    frame_size = cfg.NRBSize * cfg.NSizeBWP
+def nrPDSCHDMRSIndices(carrier: nrCarrierConfig, cfg: nrPDSCHConfig):
+    NRBSize = carrier.NStartGrid if not cfg.NRBSize else cfg.NRBSize
+    NSizeBWP = carrier.NSizeGrid if not cfg.NSizeBWP else cfg.NSizeBWP
+
+    frame_begin = NRBSize * min(cfg.PRBSet)
+    frame_end = NRBSize * (max(cfg.PRBSet)+1)
+    frame_size = NRBSize * NSizeBWP
 
     # Single frame DMRS positions
     dmrs_full_range = np.array(list(range(frame_begin, frame_end)))

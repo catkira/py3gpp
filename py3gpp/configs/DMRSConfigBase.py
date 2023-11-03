@@ -5,7 +5,7 @@ class DMRSConfigBase():
         self._Ports = None
         self._DMRSTypeAPosition = 2
         self._DMRSAdditionalPosition = 0
-        self._DMRSLength = 0
+        self._DMRSLength = 1
         self._CustomSymbolSet = []
         self._DMRSPortSet = []
         self._NIDNSCID = []

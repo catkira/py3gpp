@@ -5,9 +5,12 @@ import numpy as np
 import pytest
 
 from py3gpp.nrPDSCHDMRSIndices import nrPDSCHDMRSIndices
+from py3gpp.configs.nrCarrierConfig import nrCarrierConfig
 from py3gpp.configs.nrPDSCHConfig import nrPDSCHConfig
 
 def run_nr_pdschdmrs_indices(cfg, eng):
+    carrier = nrCarrierConfig();
+
     pdsch_cfg = nrPDSCHConfig()
     pdsch_cfg.NSizeBWP = cfg['n_size_bwp']
     pdsch_cfg.NStartBWP = cfg['n_start_bwp']
@@ -21,7 +24,7 @@ def run_nr_pdschdmrs_indices(cfg, eng):
     pdsch_cfg.PRBSet = cfg['PRBSet']
     pdsch_cfg.SymbolAllocation = cfg['SymbolAllocation']
 
-    pdschdmrs_indices = nrPDSCHDMRSIndices(pdsch_cfg)
+    pdschdmrs_indices = nrPDSCHDMRSIndices(carrier, pdsch_cfg)
 
     [_, indices_ref, _, _] = eng.gen_pdschdmrs(cfg, nargout=4)
     indices_ref = np.array(list(itertools.chain(*indices_ref)))
