@@ -6,12 +6,15 @@ import sys
 
 from py3gpp.nrPDSCHDMRSIndices import nrPDSCHDMRSIndices
 from py3gpp.configs.nrPDSCHConfig import nrPDSCHConfig
+from py3gpp.configs.nrCarrierConfig import nrCarrierConfig
 
 sys.path.append("test_data")
 
 from test_data.pdsch import pdschdmrs_indices_ref
 
 def run_nr_pdschdmrs(cfg):
+    carrier = nrCarrierConfig();
+
     pdsch_cfg = nrPDSCHConfig();
     pdsch_cfg.NSizeBWP = cfg['n_size_bwp']
     pdsch_cfg.NStartBWP = cfg['n_start_bwp']
@@ -25,7 +28,7 @@ def run_nr_pdschdmrs(cfg):
     pdsch_cfg.PRBSet = cfg['PRBSet']
     pdsch_cfg.SymbolAllocation = cfg['SymbolAllocation']
 
-    pdschdmrs_indices = nrPDSCHDMRSIndices(pdsch_cfg)
+    pdschdmrs_indices = nrPDSCHDMRSIndices(carrier, pdsch_cfg)
 
     # Cut neccesary part of reference indices
     # TODO: now it works only for 0 and 3 symbols. 1 and 2 quite tricky to cut...
