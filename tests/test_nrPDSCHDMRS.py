@@ -13,13 +13,13 @@ sys.path.append("test_data")
 from test_data.pdsch import pdschdmrs_symbols_ref
 
 def run_nr_pdschdmrs(cfg):
-    carrier = nrCarrierConfig();
-    carrier.SubcarrierSpacing = 120;
-    carrier.CyclicPrefix = 'normal';
-    carrier.NSizeGrid = 132;
-    carrier.NStartGrid = 0;
+    carrier = nrCarrierConfig()
+    carrier.SubcarrierSpacing = 120
+    carrier.CyclicPrefix = 'normal'
+    carrier.NSizeGrid = 132
+    carrier.NStartGrid = 0
 
-    pdsch_cfg = nrPDSCHConfig();
+    pdsch_cfg = nrPDSCHConfig()
     pdsch_cfg.NSizeBWP = cfg['n_size_bwp']
     pdsch_cfg.NStartBWP = cfg['n_start_bwp']
     pdsch_cfg.MappingType = cfg['MappingType']
