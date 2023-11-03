@@ -37,7 +37,7 @@ def test_nrCodeBlockSegmentLDPC_fixed_data(eng):
     run_nrCodeBlockSegmentLDPC_fixed_data(eng)
 
 @pytest.mark.parametrize('blklen', [100, 1000, 4000, 4001, 10000])
-def test_nrCodeBlockSegmentLDPC(blklen, eng):
+def test_nrCodeBlockSegmentLDPC_matlab(blklen, eng):
     run_nrCodeBlockSegmentLDPC(blklen, eng)
 
 if __name__ == '__main__':

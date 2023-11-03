@@ -22,7 +22,7 @@ def eng():
     eng.quit()
 
 @pytest.mark.parametrize("N", [512, 256, 128])
-def test_nrRateRecoverPolar(N, eng):
+def test_nrRateRecoverPolar_matlab(N, eng):
     run_nrRateRecoverPolar(N, eng)
 
 if __name__ == '__main__':

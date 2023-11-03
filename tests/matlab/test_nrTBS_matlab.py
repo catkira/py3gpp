@@ -16,7 +16,7 @@ def eng():
 @pytest.mark.parametrize("tcr", [[0.3701, 0.4277]])
 @pytest.mark.parametrize("xOh", [0])
 @pytest.mark.parametrize("tbScaling", [1])
-def test_nrTBS(modulation, nlayers, nPRB, NREPerPRB, tcr, xOh, tbScaling, eng):
+def test_nrTBS_matlab(modulation, nlayers, nPRB, NREPerPRB, tcr, xOh, tbScaling, eng):
     tb_two_cw = nrTBS(modulation, nlayers, nPRB, NREPerPRB, tcr, xOh, tbScaling)
     tb_two_cw_ref = np.asarray(eng.nrTBS(modulation, nlayers, nPRB, NREPerPRB, eng.double(np.array(tcr)), xOh, eng.double(tbScaling))).astype(int)[0]
     assert np.array_equal(tb_two_cw, tb_two_cw_ref)

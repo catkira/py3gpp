@@ -16,7 +16,7 @@ def eng():
 @pytest.mark.parametrize("mod", ['QPSK'])
 @pytest.mark.parametrize("nLayers", [1])
 @pytest.mark.parametrize("numCB", [1])
-def test_nrRateRecoverLDPC(N, trblklen, R, rv, mod, nLayers, numCB, eng):
+def test_nrRateRecoverLDPC_matlab(N, trblklen, R, rv, mod, nLayers, numCB, eng):
     # soft bits before code block desegmentation
     llr_max = 65000
     sbits = np.random.random_sample((N, 1)) * 2 * llr_max - llr_max

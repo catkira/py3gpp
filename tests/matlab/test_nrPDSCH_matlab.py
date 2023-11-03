@@ -25,7 +25,7 @@ def eng():
 @pytest.mark.parametrize("nlayers", [1])
 @pytest.mark.parametrize("nid", [0, 1])
 @pytest.mark.parametrize("nrnti", [0, 1])
-def test_run_nr_pdsch(modulation, nlayers, nid, nrnti, eng):
+def test_run_nr_pdsch_matlab(modulation, nlayers, nid, nrnti, eng):
     databits = eng.randi(matlab.double([0, 1]), 4800, 1)
     run_nr_pdsch(databits, modulation, nlayers, nid, nrnti, eng)
 

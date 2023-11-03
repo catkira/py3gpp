@@ -19,7 +19,7 @@ def eng():
 @pytest.mark.parametrize("C", [1, 2, 3])
 @pytest.mark.parametrize("rv", [0, 1, 2, 3])
 @pytest.mark.parametrize("N_filler_bits", [0, 20])
-def test_nrRateMatchLDPC(N, C, rv, N_filler_bits, eng):
+def test_nrRateMatchLDPC_matlab(N, C, rv, N_filler_bits, eng):
     mod = 'QPSK'
     nLayers = 1
     outlen = 8000

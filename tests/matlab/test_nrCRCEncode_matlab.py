@@ -25,7 +25,7 @@ def eng():
 
 @pytest.mark.parametrize("poly", ["6", "11", "16", "24A", "24B", "24C"])
 @pytest.mark.parametrize("blk_size", [100, 2000])
-def test_nr_crc_encode(poly, blk_size, eng):
+def test_nr_crc_encode_matlab(poly, blk_size, eng):
     run_nr_crc_encode(poly, blk_size, eng)
 
 if __name__ == '__main__':

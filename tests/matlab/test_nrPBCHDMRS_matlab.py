@@ -31,5 +31,5 @@ def eng():
 
 @pytest.mark.parametrize("ncellid", [0, 500, 1007])
 @pytest.mark.parametrize("issb", list(range(8)))
-def test_nr_pbch_dmrs(ncellid, issb, eng):
+def test_nr_pbch_dmrs_matlab(ncellid, issb, eng):
     run_nr_pbch_dmrs(ncellid, issb, eng)
