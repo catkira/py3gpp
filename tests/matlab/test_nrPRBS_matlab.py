@@ -22,7 +22,7 @@ def eng():
 
 @pytest.mark.parametrize("cinit", [0, 100, 1245345, 534667868])
 @pytest.mark.parametrize("size", [1024, 8192])
-def test_nr_prbs(cinit, size, eng):
+def test_nr_prbs_matlab(cinit, size, eng):
     eng = matlab.engine.connect_matlab()
 
     try:

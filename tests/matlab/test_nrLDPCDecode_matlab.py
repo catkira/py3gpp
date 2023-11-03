@@ -14,7 +14,7 @@ def eng():
 @pytest.mark.parametrize("F", [36])
 @pytest.mark.parametrize("bgn", [2])
 @pytest.mark.parametrize("vectorize", [True, False])
-def test_nrLDPCDecode(K, C, F, bgn, vectorize, eng):
+def test_nrLDPCDecode_matlab(K, C, F, bgn, vectorize, eng):
     # cbs = np.ones((K - F, C))
     cbs = np.random.randint(2, size = (K - F, C))
     fillers = (-1) * np.ones((F, C))

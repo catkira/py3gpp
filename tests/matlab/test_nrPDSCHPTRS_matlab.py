@@ -3,12 +3,13 @@ import os
 import itertools
 import numpy as np
 import pytest
+import time
 
-from py3gpp.nrPDSCHDMRS import nrPDSCHDMRS
+from py3gpp.nrPDSCHPTRS import nrPDSCHPTRS
 from py3gpp.configs.nrPDSCHConfig import nrPDSCHConfig
 from py3gpp.configs.nrCarrierConfig import nrCarrierConfig
 
-def run_nr_pdschdmrs(cfg, eng):
+def run_nr_pdschptrs(cfg, eng):
     carrier = nrCarrierConfig();
     carrier.SubcarrierSpacing = 120;
     carrier.CyclicPrefix = 'normal';
@@ -25,18 +26,25 @@ def run_nr_pdschdmrs(cfg, eng):
     pdsch_cfg.DMRS.DMRSConfigurationType = cfg['DMRSConfigurationType']
     pdsch_cfg.DMRS.NIDNSCID = cfg['NIDNSCID']
     pdsch_cfg.DMRS.NSCID = cfg['NSCID']
+    pdsch_cfg.RNTI = cfg['RNTI']
     pdsch_cfg.PRBSet = cfg['PRBSet']
     pdsch_cfg.SymbolAllocation = cfg['SymbolAllocation']
 
-    pdschdmrs_syms = nrPDSCHDMRS(pdsch_cfg, carrier)
+    pdsch_cfg.EnablePTRS = cfg['EnablePTRS']
+    pdsch_cfg.PTRS.TimeDensity = cfg['PTRSTimeDensity']
+    pdsch_cfg.PTRS.FrequencyDensity = cfg['PTRSFrequencyDensity']
+    pdsch_cfg.PTRS.REOffset = cfg['PTRSREOffset']
 
-    [pdschdmrs_syms_ref, _] = eng.gen_pdschdmrs(cfg, nargout=2)
-    pdschdmrs_syms_ref = np.array(list(itertools.chain(*pdschdmrs_syms_ref)))
+    pdschptrs_syms = nrPDSCHPTRS(carrier, pdsch_cfg)
 
-    pdschdmrs_syms = np.around(pdschdmrs_syms, 4)
-    pdschdmrs_syms_ref = np.around(pdschdmrs_syms_ref, 4)
+    [_,_,data_ref,_] = eng.gen_pdschdmrs(cfg, nargout=4)
+    data_ref = np.array(list(itertools.chain(*data_ref)))
 
-    assert np.array_equal(pdschdmrs_syms, pdschdmrs_syms_ref)
+    pdschptrs_syms = np.around(pdschptrs_syms, 4)
+    data_ref = np.around(data_ref, 4)
+
+    assert np.array_equal(pdschptrs_syms, data_ref)
+
 
 @pytest.fixture(scope='session')
 def eng():
@@ -49,7 +57,10 @@ def eng():
 @pytest.mark.parametrize('dmrs_add_pos', [0, 1, 2, 3])
 @pytest.mark.parametrize('PRBSet', [list(range(0, 132)), list(range(60, 132)), list(range(30, 60))])
 @pytest.mark.parametrize('dmrs_cfg_type', [1, 2])
-def test_nr_pdschdmrs(symb_alloc, dmrs_add_pos, typeA_pos, PRBSet, dmrs_cfg_type, eng):
+@pytest.mark.parametrize('PTRSREOffset', ['00', '01', '10', '11'])
+@pytest.mark.parametrize('PTRSFrequencyDensity', [2, 4])
+@pytest.mark.parametrize('PTRSTimeDensity', [1, 2, 4])
+def test_nr_pdschptrs_matlab(typeA_pos, symb_alloc, dmrs_add_pos, PRBSet, dmrs_cfg_type, PTRSREOffset, PTRSFrequencyDensity, PTRSTimeDensity, eng):
     eng.cd(os.path.dirname(__file__))
 
     cfg = {}
@@ -64,11 +75,15 @@ def test_nr_pdschdmrs(symb_alloc, dmrs_add_pos, typeA_pos, PRBSet, dmrs_cfg_type
     cfg['DMRSConfigurationType'] = dmrs_cfg_type
     cfg['NIDNSCID'] = 1
     cfg['NSCID'] = 0
-    cfg['EnablePTRS'] = 0
+    cfg['RNTI'] = 1
+    cfg['EnablePTRS'] = 1
+    cfg['PTRSTimeDensity'] = PTRSTimeDensity
+    cfg['PTRSFrequencyDensity'] = PTRSFrequencyDensity
+    cfg['PTRSREOffset'] = PTRSREOffset
 
-    run_nr_pdschdmrs(cfg, eng)
+    run_nr_pdschptrs(cfg, eng)
 
 if __name__ == '__main__':
     _eng = matlab.engine.connect_matlab()
-    test_nr_pdschdmrs([2, 12], 1, 2, list(range(2, 130)), 2, _eng)
+    test_nr_pdschptrs(3, [2, 12], 0, list(range(10, 132)), 2, '11', 4, 1, _eng)
     _eng.quit()

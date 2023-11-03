@@ -26,7 +26,7 @@ def eng():
     eng.quit()
 
 @pytest.mark.parametrize("modtype", ["BPSK", "pi/2-BPSK", "QPSK", "16QAM", "64QAM", "256QAM"])
-def test_nr_pbch(modtype, eng):
+def test_nr_pbch_matlab(modtype, eng):
     if modtype == "BPSK":
         databits = get_bin_symbols(1, 2)
     elif modtype == "pi/2-BPSK":

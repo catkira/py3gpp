@@ -27,6 +27,6 @@ def eng():
     eng.quit()
 
 @pytest.mark.parametrize("ncellid", [0, 600, 1007])
-def test_nr_sss(ncellid, eng):
+def test_nr_sss_matlab(ncellid, eng):
     run_nr_sss(ncellid, eng)
 

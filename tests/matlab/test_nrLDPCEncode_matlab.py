@@ -13,7 +13,7 @@ def eng():
 @pytest.mark.parametrize("C", [1, 2, 3])
 @pytest.mark.parametrize("F", [36])
 @pytest.mark.parametrize("bgn", [2])
-def test_nrLDPCEncode(K, C, F, bgn, eng):
+def test_nrLDPCEncode_matlab(K, C, F, bgn, eng):
     # cbs = np.ones((K - F, C))
     cbs = np.random.randint(2, size = (K - F, C))
     fillers = (-1) * np.ones((F, C))

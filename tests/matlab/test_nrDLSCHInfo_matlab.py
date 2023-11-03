@@ -21,7 +21,7 @@ def eng():
 
 @pytest.mark.parametrize("tbs", [0, 1, 100, 3824, 6666])
 @pytest.mark.parametrize("tcr", [0.1, 0.25, 0.67, 0.99])
-def test_nr_dlsch_info(tbs, tcr, eng):
+def test_nr_dlsch_info_matlab(tbs, tcr, eng):
     run_nr_dlsch_info(tbs, tcr, eng)
 
 if __name__ == '__main__':
