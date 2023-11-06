@@ -100,7 +100,7 @@ def getCBSInfo(B, bgn):
     cbz = np.ceil(B/C).astype(int)
 
     # Get number of bits in each code block (excluding filler bits)
-    Kd = np.ceil(Bd/C)
+    Kd = np.ceil(Bd/C).astype(int)
 
     # Find the minimum value of Z in all sets of lifting sizes in 38.212
     # Table 5.3.2-1, denoted as Zc, such that Kb*Zc>=Kd
