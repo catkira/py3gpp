@@ -34,5 +34,5 @@ if __name__ == '__main__':
     mod = 'QPSK'
     nLayers = 1
     numCB = 1
-    test_nrRateRecoverLDPC(4500, trblklen, R, rv, mod, nLayers, numCB, _eng)
+    test_nrRateRecoverLDPC_matlab(4500, trblklen, R, rv, mod, nLayers, numCB, _eng)
     _eng.quit()

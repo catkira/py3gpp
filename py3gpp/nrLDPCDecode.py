@@ -5,7 +5,8 @@ from py3gpp.nrDLSCHInfo import getZlist, getZarray
 from py3gpp import codes
 from py3gpp.nrLDPCEncode import _load_basegraph, _lift_basegraph, _mul_sh
 
-def nrLDPCDecode(in_, bgn, maxNumIter, Algorithm = 'Layered belief propagation', ScalingFactor = 0.75, Offset = 0.5, vectorize = True):
+def nrLDPCDecode(in_, bgn, maxNumIter, Algorithm = 'Layered belief propagation', ScalingFactor = 0.75, Offset = 0.5,
+                 vectorize = True, verbose = False):
     if Algorithm not in ['Layered belief propagation', 'Normalized min-sum', 'Offset min-sum']:
         raise ValueError(f'Algorithm {Algorithm} is not supported')
     if len(in_.shape) != 2:
@@ -58,7 +59,8 @@ def nrLDPCDecode(in_, bgn, maxNumIter, Algorithm = 'Layered belief propagation',
                     min_val = x
                     i_ls = i
     assert i is not None, 'could not find i_ls'
-    print(f'block length B = {in_.shape[0]}, number of information bits K = {K}, code rate R = {rate}, i_ls = {i_ls}')
+    if verbose:
+        print(f'block length B = {in_.shape[0]}, number of information bits K = {K}, code rate R = {rate}, i_ls = {i_ls}')
 
     bm = _load_basegraph(i_ls, bgn)
     # pcm = _lift_basegraph(bm, Zc)
@@ -74,7 +76,8 @@ def nrLDPCDecode(in_, bgn, maxNumIter, Algorithm = 'Layered belief propagation',
         algo = 2
 
     for c_idx in range(C):
-        print(f'decoding segment {c_idx} ...')
+        if verbose:
+            print(f'decoding segment {c_idx} ...')
         treg = np.zeros((np.max(np.sum(bm != -1, axis = 1)), Zc)) # register storage for minsum
         R = np.zeros((Slen, Zc))
         L = in_[:, c_idx]
