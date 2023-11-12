@@ -241,6 +241,8 @@ def _encode_thangaraj(B, Zc, msg):
 
 
 def nrLDPCEncode(cbs, bgn, algo = 'sionna'):
+    cbs = cbs.copy() # don't modify inputs
+
     if algo not in ['sionna', 'thangaraj']:
         raise TypeError('algo has to be "sionna" or "thangaraj"')
     if len(cbs.shape) != 2:
