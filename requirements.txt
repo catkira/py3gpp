@@ -5,3 +5,4 @@ anybadge
 pytest
 pytest-xdist
 importlib_resources
+pre-commit

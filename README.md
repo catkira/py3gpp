@@ -23,6 +23,7 @@ See Matlab documentation of equivalent function
 ## Formatting
 * Screen width 120
 * spaces on each side of math operators like +-*/
+* run `pre-commit run -a` before any push. Otherwise PR will be rejected
 ## Testing
 * Each function must have a hard-coded test that can run on CI
 * Each function should have a Matlab test that can run on a machine with Matlab license

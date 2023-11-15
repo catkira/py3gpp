@@ -7,7 +7,23 @@ on:
     types: [created]
 
 jobs:
-  lint:
+  lint-pre-commit:
+      runs-on: ubuntu-latest
+      name: pre-commit
+      steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: pre-commit
+        run: |
+          pip install pre-commit
+          pre-commit run -a
+
+  lint-quality:
+    needs: lint-pre-commit
+
     if: github.ref == 'refs/heads/master'
 
     permissions:
@@ -55,6 +71,8 @@ jobs:
         continue-on-error: true
 
   build:
+    needs: lint-pre-commit
+
     runs-on: ubuntu-latest
     strategy:
       matrix:
