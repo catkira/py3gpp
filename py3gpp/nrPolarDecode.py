@@ -201,8 +201,7 @@ def nrPolarDecode(rec, K, E, L, padCRC=False, nmax=9, iil=True, CRClen=24):
     if nmax not in (9, 10):
         print("Error: invalid nmax value!")
         exit()
-
-    K = 56
+    # TODO: what to do with E argument, it is currently deducted from rec shape
     N = 512
     frozen_pos, info_pos = generate_5g_ranking(K, N)
 

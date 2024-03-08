@@ -6,7 +6,7 @@ from py3gpp.nrPBCHPRBS import nrPBCHPRBS
 
 
 def nrBCHDecode(softbits, L, lssb=None, ncellid=None):
-    K = 32
+    K = 32 + 24
     E = 864
     L = 8
     N = 512
