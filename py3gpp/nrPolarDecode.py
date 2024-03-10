@@ -11,8 +11,9 @@ def Polar_SC_decoder(N, frozen_pos, r):
     L[0, :] = r
     node = depth = done = 0
     while done == 0:
+        # print(f'd = {depth}, node = {node}')
         if depth == n:
-            ucap[n, node] = 0 if (L[n, node] >= 0 or node in frozen_pos) else 1
+            ucap[n, node] = 0 if ((L[n, node] >= 0) or (node in frozen_pos)) else 1
             print(f'ucap[{node}]={ucap[n, node]}')
             if node == N - 1:
                 done = 1
@@ -39,14 +40,15 @@ def Polar_SC_decoder(N, frozen_pos, r):
                 node = rnode  # go to right node
                 depth += 1
                 L[depth, ctemp * node : ctemp * (node + 1)] = b + (1 - 2 * ucapn) * a # g-function
-            else:
+            elif ns[npos] == 2:
                 ucapl = ucap[depth + 1, ctemp * lnode : ctemp * (lnode + 1)]
                 ucapr = ucap[depth + 1, ctemp * rnode : ctemp * (rnode + 1)]
                 ucap[depth, temp * node : temp * (node + 1)] = np.append(np.mod(ucapl + ucapr, 2), ucapr)  # combine
                 node = node // 2  # go to parent node
                 depth -= 1
+            else:
+                assert False
             ns[npos] += 1
-    print(f'{ns[:10]}')
     return ucap.astype("int")[n, :]
 
 
@@ -94,7 +96,7 @@ if __name__ == '__main__':
     print(payload_decoded_sionna)
     assert np.array_equal(payload, payload_decoded_sionna)
 
-    payload_decoded = py3gpp.nrPolarDecode(cw*2 - 1, K, 512, 10, nmax = nmax, iil = False)
+    payload_decoded = py3gpp.nrPolarDecode(1 - cw*2, K, 512, 10, nmax = nmax, iil = False)
     assert payload_decoded.shape[0] == K
     print(payload_decoded)
     assert np.array_equal(payload, payload_decoded)
