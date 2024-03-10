@@ -32,7 +32,8 @@ def Polar_SC_decoder(N, frozen_pos, r):
                 node = lnode  # go to left node
                 depth += 1
                 L[depth, ctemp * node : ctemp * (node + 1)] = (
-                    np.sign(a) * np.sign(b) * np.max((np.abs(a), np.abs(b)))  # minsum-function
+                    # cannot use np.sign() because np.sign(0) = 0 !!
+                    (1 - 2*(a < 0)) * (1 - 2*(b < 0)) * np.minimum(np.abs(a), np.abs(b))  # minsum-function
                 )
             elif ns[npos] == 1:
                 ucapn = ucap[depth + 1, ctemp * lnode : ctemp * (lnode + 1)]  # incoming decisions from left child
@@ -103,7 +104,7 @@ if __name__ == '__main__':
     payload_decoded = py3gpp.nrPolarDecode(cw_llr, K, 512, 10, nmax = nmax, iil = False)
     assert payload_decoded.shape[0] == K
     print(payload_decoded)
-    # assert np.array_equal(payload, payload_decoded)
+    assert np.array_equal(payload, payload_decoded)
 
     # --- TESTCASE2 ---
     payload = np.array([1,0,1,1,0,0,1,0,1,1,0,0,1,1,1,1,1,0,1,0,1,1,0,1,0,1,1,1,1,1,0,0,0,1,1,1,1,0,0,1,1,0,0,1,1,1,0,0,0,0,1,1,0,1,0,1,0,0,0,1,1,1,0,0,1,1,0,0,0,1,0,0,1,0,1,1,0,1,0,1,1,0,1,0,0,1,1,1,1,0,1,1,0,1,0,0,1,0,1,1])
