@@ -7,7 +7,7 @@ def Polar_SC_decoder(N, frozen_pos, r):
     n = np.log2(N).astype("int")
     L = np.zeros((n + 1, N))
     ucap = np.zeros((n + 1, N))
-    ns = np.zeros(2 * N - 1, "int")
+    ns = np.zeros(2 * N - 1, "int")  # node state vector
     L[0, :] = r
     node = depth = done = 0
     while done == 0:
