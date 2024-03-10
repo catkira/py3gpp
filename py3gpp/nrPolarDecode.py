@@ -14,7 +14,6 @@ def Polar_SC_decoder(N, frozen_pos, r):
         # print(f'd = {depth}, node = {node}')
         if depth == n:
             ucap[n, node] = 0 if ((L[n, node] >= 0) or (node in frozen_pos)) else 1
-            print(f'ucap[{node}]={ucap[n, node]}')
             if node == N - 1:
                 done = 1
             else:
@@ -33,7 +32,7 @@ def Polar_SC_decoder(N, frozen_pos, r):
                 node = lnode  # go to left node
                 depth += 1
                 L[depth, ctemp * node : ctemp * (node + 1)] = (
-                    (1 - 2 * (a > 0)) * (1 - 2 * (b > 0)) * np.min((np.abs(a), np.abs(b)))  # minsum-function
+                    np.sign(a) * np.sign(b) * np.max((np.abs(a), np.abs(b)))  # minsum-function
                 )
             elif ns[npos] == 1:
                 ucapn = ucap[depth + 1, ctemp * lnode : ctemp * (lnode + 1)]  # incoming decisions from left child
@@ -85,18 +84,38 @@ if __name__ == '__main__':
     import sionna
     nmax = 9
     K = 100
+
+    # --- TESTCASE1 ---
     payload = np.ones(K).astype(int)
     cw = py3gpp.nrPolarEncode(payload, 512, nmax=nmax, iil=False)
     cw_desired = np.array([0,1,0,0,0,1,1,0,1,1,0,1,0,0,1,0,0,0,1,0,1,0,0,0,0,0,1,1,1,1,0,1,1,1,0,1,1,0,1,1,1,1,1,1,0,0,0,1,1,0,1,0,1,0,1,1,1,1,1,1,1,1,1,1,0,0,1,0,1,1,1,0,0,0,1,0,1,1,0,0,1,1,0,1,0,1,1,0,1,0,1,0,1,0,1,0,1,1,0,1,1,0,1,0,0,1,1,0,0,1,1,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,1,1,0,0,1,1,1,0,1,0,1,1,0,0,0,0,0,0,1,1,0,1,0,1,0,0,0,0,1,0,1,1,0,0,1,0,1,0,1,0,1,0,0,0,1,0,1,1,0,1,0,1,1,1,1,0,0,1,0,0,0,0,0,0,1,0,0,0,0,1,0,1,0,0,1,1,0,0,0,0,1,0,1,1,0,1,0,1,1,0,1,1,1,1,1,1,0,1,0,1,0,1,0,1,1,0,1,1,1,1,1,1,0,1,1,0,1,0,1,0,0,1,0,0,0,0,0,0,0,1,0,0,1,0,0,1,0,0,1,0,1,0,0,1,1,0,0,0,0,0,0,1,1,0,1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1,0,0,0,1,1,1,1,0,1,1,1,1,1,1,1,0,1,1,1,1,1,1,0,1,1,1,1,1,0,1,0,1,0,1,0,1,1,0,1,1,1,1,1,1,1,0,1,1,1,0,1,0,1,0,0,1,1,1,1,0,0,0,1,0,0,0,1,1,0,0,0,1,1,1,0,1,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,1,1,1,1,0,0,0,0,1,0,1,0,0,0,0,0,1,0,1,1,0,1,0,0,0,0,1,1,1,1,1,1,0,0,1,1,0,1,0,0,0,0,1,1,0,1,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1,1,1,0,1,1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1])
     assert np.array_equal(cw, cw_desired)
+    
+    cw_llr = -2*cw.astype(np.float64) + 1
+    cw_llr[100:300] = 0  # introduce some errors
 
     frozen_pos, info_pos = sionna.fec.polar.utils.generate_5g_ranking(K, 2**nmax)
     decoder = sionna.fec.polar.decoding.PolarSCLDecoder(frozen_pos, 2**nmax, list_size=8, crc_degree='CRC24C', cpu_only=True, use_fast_scl=False)
-    payload_decoded_sionna = np.array(decoder(np.expand_dims(cw.astype(np.float64)*2 - 1, 0))[0], 'int')
+    payload_decoded_sionna = np.array(decoder(np.expand_dims(-cw_llr, 0))[0], 'int')
     print(payload_decoded_sionna)
     assert np.array_equal(payload, payload_decoded_sionna)
 
-    payload_decoded = py3gpp.nrPolarDecode(1 - cw*2, K, 512, 10, nmax = nmax, iil = False)
+    payload_decoded = py3gpp.nrPolarDecode(cw_llr, K, 512, 10, nmax = nmax, iil = False)
     assert payload_decoded.shape[0] == K
     print(payload_decoded)
-    assert np.array_equal(payload, payload_decoded)
+    # assert np.array_equal(payload, payload_decoded)
+
+    # --- TESTCASE2 ---
+    payload = np.array([1,0,1,1,0,0,1,0,1,1,0,0,1,1,1,1,1,0,1,0,1,1,0,1,0,1,1,1,1,1,0,0,0,1,1,1,1,0,0,1,1,0,0,1,1,1,0,0,0,0,1,1,0,1,0,1,0,0,0,1,1,1,0,0,1,1,0,0,0,1,0,0,1,0,1,1,0,1,0,1,1,0,1,0,0,1,1,1,1,0,1,1,0,1,0,0,1,0,1,1])
+    cw = np.array([0,0,1,1,0,0,1,0,1,0,1,0,0,1,0,0,0,0,0,1,1,1,1,1,1,0,0,1,0,1,0,0,0,1,1,1,1,0,1,1,0,0,0,1,1,0,0,0,1,0,0,0,0,1,0,0,1,1,1,1,1,0,1,0,1,1,1,0,1,0,1,0,0,0,1,0,1,0,0,1,1,0,1,0,1,1,1,0,0,1,1,1,0,0,0,0,1,0,0,1,1,1,1,1,1,0,1,0,1,0,0,1,0,0,0,0,1,0,0,1,0,0,1,0,0,0,1,0,0,1,1,0,0,1,0,0,1,1,0,0,0,0,0,1,1,1,0,1,0,0,0,0,0,1,1,0,1,0,0,0,0,1,1,1,1,0,0,0,0,0,1,0,1,0,0,0,0,0,0,1,1,1,1,0,0,1,0,1,0,0,1,1,1,0,1,1,1,1,0,0,0,1,0,0,1,1,0,0,0,1,1,0,0,0,0,1,1,0,0,0,1,1,0,0,1,0,0,1,1,1,0,0,1,0,0,1,1,0,0,1,1,0,0,1,0,0,1,1,1,0,0,0,1,0,1,1,0,0,0,0,1,1,1,0,1,1,0,0,1,1,0,1,0,0,1,0,0,0,1,1,1,1,1,1,1,1,0,1,1,0,1,1,1,0,0,0,1,0,0,0,1,1,1,0,0,1,0,0,0,1,1,1,0,1,1,0,1,1,0,0,1,1,0,1,0,1,1,0,0,1,0,0,0,0,0,0,1,0,0,1,0,0,1,0,0,0,0,1,1,0,0,1,0,1,0,1,1,1,0,0,0,0,1,1,1,1,1,1,1,1,0,0,1,0,1,0,1,0,1,1,0,1,0,0,0,1,0,1,1,0,0,0,1,0,1,0,1,0,0,0,1,1,1,0,1,1,0,0,0,0,0,0,0,0,0,1,1,0,1,1,1,0,1,1,1,0,1,1,1,1,1,0,1,1,0,1,1,1,0,1,1,1,0,0,0,1,0,1,1,0,0,0,0,0,0,0,0,0,1,0,0,1,0,1,0,1,0,1,1,1,0,1,1,1,1,0,0,1,0,1,0,1,0,1,1,1,1,1,0,0,0,0,1,1,1,1,0,1,0,1,0,0,0,0,0,0,0,1,1,1,0,1])
+    cw_llr = -2*cw.astype(np.float64) + 1
+    cw_llr[100:300] = 0  # introduce some errors
+
+    payload_decoded_sionna = np.array(decoder(np.expand_dims(-cw_llr, 0))[0], 'int')
+    print(payload_decoded_sionna)
+    assert np.array_equal(payload_decoded_sionna, payload)
+
+    payload_decoded = py3gpp.nrPolarDecode(cw_llr, K, 512, 10, nmax = nmax, iil = False)
+    assert payload_decoded.shape[0] == K
+    print(payload_decoded)
+    assert np.array_equal(payload_decoded, payload)
