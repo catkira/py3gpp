@@ -32,13 +32,13 @@ def Polar_SC_decoder(N, frozen_pos, r):
                 node = lnode  # go to left node
                 depth += 1
                 L[depth, ctemp * node : ctemp * (node + 1)] = (
-                    (1 - 2 * (a > 0)) * (1 - 2 * (b > 0)) * np.max((np.abs(a), np.abs(b)))
+                    (1 - 2 * (a > 0)) * (1 - 2 * (b > 0)) * np.min((np.abs(a), np.abs(b)))  # minsum-function
                 )
             elif ns[npos] == 1:
                 ucapn = ucap[depth + 1, ctemp * lnode : ctemp * (lnode + 1)]  # incoming decisions from left child
                 node = rnode  # go to right node
                 depth += 1
-                L[depth, ctemp * node : ctemp * (node + 1)] = b + (1 - 2 * ucapn) * a
+                L[depth, ctemp * node : ctemp * (node + 1)] = b + (1 - 2 * ucapn) * a # g-function
             else:
                 ucapl = ucap[depth + 1, ctemp * lnode : ctemp * (lnode + 1)]
                 ucapr = ucap[depth + 1, ctemp * rnode : ctemp * (rnode + 1)]
@@ -46,6 +46,7 @@ def Polar_SC_decoder(N, frozen_pos, r):
                 node = node // 2  # go to parent node
                 depth -= 1
             ns[npos] += 1
+    print(f'{ns[:10]}')
     return ucap.astype("int")[n, :]
 
 
