@@ -73,7 +73,7 @@ def nrPolarDecode(rec, K, E, L, padCRC=False, nmax=9, iil=True, CRClen=24):
     if iil:
         # deinterleave
         p_IL = polar_precode_interleave(K)
-        decoded2 = np.empty(decoded.shape, "int")
+        decoded2 = np.empty(decoded.shape, int)
         np.put(decoded2, p_IL, decoded)
     else:
         decoded2 = decoded
