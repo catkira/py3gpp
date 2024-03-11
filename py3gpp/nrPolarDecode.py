@@ -49,7 +49,7 @@ def Polar_SC_decoder(N, frozen_pos, r):
             else:
                 assert False
             ns[npos] += 1
-    return ucap.astype("int")[n, :]
+    return ucap.astype(int)[n, :]
 
 
 # rec: Rate-recovered input, LLRs, length must be power of two
