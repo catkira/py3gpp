@@ -4,6 +4,7 @@ from py3gpp.helper import polar_precode_interleave
 
 def nrPolarEncode(payload, E, nmax = 9 , iil = False):
     K = payload.shape[0]
+    assert not (iil and K > 164), "iil is not supported for K > 164"
     _, info_pos = generate_5g_ranking(k = K, n = 2 ** nmax)
     N = 2 ** nmax
     u = np.zeros(N).astype(int)
