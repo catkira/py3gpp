@@ -18,6 +18,7 @@ from .nrPBCHIndices import nrPBCHIndices
 from .nrPBCHPRBS import nrPBCHPRBS
 from .nrEqualizeMMSE import nrEqualizeMMSE
 from .nrRateRecoverPolar import nrRateRecoverPolar
+from .nrRateMatchPolar import nrRateMatchPolar
 from .nrPolarDecode import nrPolarDecode
 from .nrPolarEncode import nrPolarEncode
 from .nrCRCEncode import nrCRCEncode
