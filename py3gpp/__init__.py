@@ -24,6 +24,7 @@ from .nrPolarEncode import nrPolarEncode
 from .nrCRCEncode import nrCRCEncode
 from .nrCRCDecode import nrCRCDecode
 from .nrBCHDecode import nrBCHDecode
+from .nrBCH import nrBCH
 from .nrPRBS import nrPRBS
 from .nrSymbolModulate import nrSymbolModulate
 from .nrRateMatchLDPC import nrRateMatchLDPC
