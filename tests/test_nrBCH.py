@@ -1,71 +1,7 @@
 import numpy as np
-from py3gpp.nrPolarEncode import nrPolarEncode
-from py3gpp.nrRateMatchPolar import nrRateMatchPolar
-from py3gpp.nrCRCEncode import nrCRCEncode
-from py3gpp.nrPBCHPRBS import nrPBCHPRBS
+from py3gpp.nrBCH import nrBCH
 
-
-def nrBCH(trblk, sfn, hrf, lssb, idxoffset, ncellid):
-    # interleaving according to TS38.212 7.1.1
-    # fmt: off
-    G = [16, 23, 18, 17, 8, 30, 10, 6, 24, 7, 0, 5, 3, 2, 1, 4, 9, 11, 12, 13, 14, 15, 19, 20, 21, 22, 25, 26, 27, 28,
-         29, 31]
-    # fmt: on
-    SFN_PAYLOAD_BEGIN = 1
-    SFN_PAYLOAD_LENGTH = 6
-    SFN_2ND_LSB = SFN_PAYLOAD_LENGTH + 2
-    SFN_3RD_LSB = SFN_PAYLOAD_LENGTH + 1
-    #v = 2 * scrblk[G[SFN_3RD_LSB]] + scrblk[G[SFN_2ND_LSB]]
-    j_sfn = 0
-    j_other = 14
-    payload = trblk
-    A = 32
-    a = np.zeros(A, "int")
-    for i in range(24):
-        if (i >= SFN_PAYLOAD_BEGIN) and (i < (SFN_PAYLOAD_BEGIN + SFN_PAYLOAD_LENGTH)):
-            a[G[j_sfn]] = payload[i]
-            j_sfn += 1
-        else:
-            a[G[j_other]] = payload[i]
-            j_other += 1
-    a[G[10]] = hrf
-    a[G[j_sfn + 0]] = 1 if sfn & 0x08 != 0 else 0
-    a[G[j_sfn + 1]] = 1 if sfn & 0x04 != 0 else 0
-    a[G[j_sfn + 2]] = 1 if sfn & 0x02 != 0 else 0
-    a[G[j_sfn + 3]] = 1 if sfn & 0x01 != 0 else 0
-
-    # scramble
-    tmp_seq = nrPBCHPRBS(ncellid, 0, len(a) * 100)
-    if lssb in (4, 8):
-        M = A - 3
-    else:
-        M = A - 6
-    v = 2 * a[G[SFN_3RD_LSB]] + a[G[SFN_2ND_LSB]]
-    n = v * M
-    scrambling_seq = tmp_seq[n:][:A]
-    scrambling_seq_final = np.zeros(A, "int")
-    j = 0
-    for i in range(A):
-        is_ssb_idx = (i in (G[11], G[12], G[13])) and lssb == 64
-        if is_ssb_idx or i == G[10] or i == G[SFN_2ND_LSB] or i == G[SFN_3RD_LSB]:
-            scrambling_seq_final[i] = 0
-        else:
-            scrambling_seq_final[i] = scrambling_seq[j]
-            j += 1
-    scrblk_scrambled = np.bitwise_xor(scrambling_seq_final, a)
-
-    # attach CRC
-    bits = nrCRCEncode(scrblk_scrambled, "24C")[:,0]
-
-    # polar encoding + rate matching
-    E = 864
-    NMAX = 9
-    encoded = nrPolarEncode(bits, 0, nmax = NMAX, iil = True)
-    rate_matched = nrRateMatchPolar(encoded, 0, E, ibil = False)
-
-    return rate_matched
-
-if __name__ == '__main__':
+def test_nrBCH():
     trblk = np.zeros(24, int)
     sfn = 0
     hrf = 0
@@ -73,8 +9,6 @@ if __name__ == '__main__':
     idxoffset = 0
     ncellid = 0
     cdblk = nrBCH(trblk, sfn, hrf, lssb, idxoffset, ncellid)
-    from py3gpp.nrBCHDecode import nrBCHDecode
-    decoded = nrBCHDecode(1 - 2*cdblk, 8, lssb, ncellid)
     # nid = 0, lssb = 8, idxoffset = 0, hrf = 0, sfn = 0
     desired_cdblk = np.array([0,0,0,1,0,1,0,1,0,0,0,0,0,0,1,0,1,0,1,0,1,1,0,1,0,0,0,1,0,0,0,0,1,0,1,0,0,0,1,0,1,1,1,0,0,0,0,0,1,0,1,0,1,1,1,0,0,1,0,0,0,1,1,0,0,0,0,1,1,0,1,0,1,1,1,1,0,0,1,0,0,0,0,1,0,1,1,0,0,1,0,1,0,1,0,0,0,0,0,1,1,0,0,1,1,0,1,0,0,1,0,0,1,0,1,0,0,0,0,1,1,0,1,1,0,1,1,0,1,0,1,1,1,1,1,1,1,0,1,0,1,0,0,0,0,0,0,1,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,1,1,1,1,0,1,1,1,0,1,0,1,0,1,0,1,1,0,1,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,1,0,1,0,1,0,1,0,0,0,1,0,1,1,1,0,0,0,0,0,1,0,1,1,0,0,0,0,0,1,0,1,1,0,0,0,0,0,0,1,1,0,1,0,1,1,1,1,0,0,1,0,0,0,0,0,0,1,0,0,1,1,1,0,1,1,0,0,1,0,1,0,1,1,1,0,0,1,0,0,0,1,1,0,1,0,1,1,1,1,0,0,1,1,1,1,1,1,1,0,0,0,0,1,0,1,1,0,0,1,0,1,0,1,0,0,1,0,1,1,0,0,1,1,0,0,0,0,1,1,1,0,0,0,0,1,1,0,0,1,1,0,1,0,0,1,0,0,0,0,0,0,1,0,1,1,0,0,0,1,1,1,0,0,1,0,1,0,0,0,0,1,1,0,1,1,0,1,1,0,1,0,1,1,1,1,1,1,1,0,1,0,1,0,0,0,0,0,0,0,0,1,1,1,1,0,1,1,1,0,1,0,0,0,0,0,1,0,0,0,0,1,0,0,1,0,1,0,0,0,0,0,0,1,0,0,1,1,1,0,1,1,0,0,1,0,1,1,0,0,0,0,0,1,0,1,1,0,0,0,1,0,1,1,1,1,0,0,1,1,1,1,1,1,1,0,1,0,1,1,0,0,1,1,0,0,0,0,1,1,1,0,0,0,0,0,1,0,1,1,0,0,0,1,1,1,0,0,0,0,0,1,0,1,0,1,0,0,0,0,0,0,1,0,1,0,1,0,1,1,0,1,0,0,0,1,0,0,0,0,1,0,1,0,0,0,1,0,1,1,1,0,0,0,0,0,1,0,1,0,1,1,1,0,0,1,0,0,0,1,1,0,0,0,0,1,1,0,1,0,1,1,1,1,0,0,1,0,0,0,0,1,0,1,1,0,0,1,0,1,0,1,0,0,0,0,0,1,1,0,0,1,1,0,1,0,0,1,0,0,1,0,1,0,0,0,0,1,1,0,1,1,0,1,1,0,1,0,1,1,1,1,1,1,1,0,1,0,1,0,0,0,0,0,0,1,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,1,1,1,1,0,1,1,1,0,1,0,1,0,1,0,1,1,0,1,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,1,0,1,0,1,0,1,0,0,0,1,0,1,1,1,0,0,0,0,0,1,0,1,1,0,0,0,0,0,1,0,1,1,0,0,0,0,0,0,1,1,0,1,0,1,1,1,1,0,0,1,0,0,0,0,0,0,1,0,0,1,1,1,0,1,1,0,0,1,0,1,0,1,1,1,0,0,1,0,0,0,1,1,0,1,0,1,1,1,1,0,0,1,1,1,1,1,1,1,0,0,0,0,1,0,1,1,0,0,1,0,1,0,1,0,0,1,0,1,1,0,0,1,1,0,0,0,0,1,1,1,0,0,0,0,1,1,0,0,1,1,0,1,0,0,1,0,0], int)
     assert np.array_equal(cdblk, desired_cdblk)
