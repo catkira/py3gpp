@@ -9,7 +9,7 @@ build-backend = "setuptools.build_meta"
 py3gpp = ["codes/*.csv"]
 
 [project]
-version = "0.5.0"
+version = "0.5.1"
 authors = [
     {name = "Benjamin Menküc", email = "benjamin@menkuec.de"},
 ]
