@@ -42,6 +42,7 @@ from .nrPDSCHDecode import nrPDSCHDecode
 from .nrDLSCHInfo import nrDLSCHInfo
 from .nrPDSCHIndices import nrPDSCHIndices
 from .nrPDSCHMCSTables import nrPDSCHMCSTables
+from .nrTransformPrecode import nrTransformPrecode
 
 from .configs.nrCarrierConfig import nrCarrierConfig
 from .configs.nrNumerologyConfig import nrNumerologyConfig
