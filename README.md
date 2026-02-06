@@ -16,6 +16,11 @@ run 'examples/test_py3gpp.ipynb'
 
 The example data is ideal data generated with Matlab, but the code has been tested with real data that has CFO, SFO and noise.
 
+# LDPC BER/FER Benchmark
+![LDPC BER/FER](docs/ldpc_ber_fer.png)
+
+BER and FER performance of `nrLDPCDecode` over an AWGN channel with QPSK modulation (base graph 2, K=2560, code rate 0.2). Run `python docs/generate_ldpc_ber_plot.py` to regenerate.
+
 # Documentation
 See Matlab documentation of equivalent function
 
