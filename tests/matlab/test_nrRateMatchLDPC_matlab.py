@@ -15,13 +15,13 @@ def eng():
     yield eng
     eng.quit()
 
-@pytest.mark.parametrize("N", [3960])
+@pytest.mark.parametrize("N", [3960, 8000])  # BGN1 & BGN2
 @pytest.mark.parametrize("C", [1, 2, 3])
 @pytest.mark.parametrize("rv", [0, 1, 2, 3])
+@pytest.mark.parametrize("mod", ["QPSK", "64QAM", "256QAM"])
+@pytest.mark.parametrize("nLayers", [1, 2, 3, 4])
 @pytest.mark.parametrize("N_filler_bits", [0, 20])
-def test_nrRateMatchLDPC_matlab(N, C, rv, N_filler_bits, eng):
-    mod = 'QPSK'
-    nLayers = 1
+def test_nrRateMatchLDPC_matlab(N, C, rv, mod, nLayers, N_filler_bits, eng):
     outlen = 8000
     in_ = np.random.randint(2, size = (N, C))
     if N_filler_bits > 1:
@@ -30,5 +30,11 @@ def test_nrRateMatchLDPC_matlab(N, C, rv, N_filler_bits, eng):
 
 if __name__ == '__main__':
     _eng = matlab.engine.connect_matlab()
-    test_nrRateMatchLDPC(3960, 1, 1, 20, _eng)
+    N = 3960
+    C = 1
+    rv = 0
+    mod = 'QPSK'
+    nLayers = 1
+    N_filler_bits = 20
+    test_nrRateMatchLDPC_matlab(N, C, rv, mod, nLayers, N_filler_bits, _eng)
     _eng.quit()

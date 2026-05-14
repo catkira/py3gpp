@@ -2,8 +2,8 @@ import numpy as np
 from py3gpp.nrDLSCHInfo import getZlist
 
 def nrRateMatchLDPC(in_, outlen, rv, mod, nLayers):
-    assert nLayers == 1, 'nLayers > 1 is not yet implemented'
     assert rv in [0, 1, 2, 3], 'rv has to be in [0, 1, 2, 3]'
+    assert nLayers in [1, 2, 3, 4], 'nLayers has to be [1, 2, 3, 4]'
     if mod in ['pi/2-BPSK', 'BPSK']:
         Qm = 1
     elif mod == 'QPSK':
@@ -56,24 +56,24 @@ def nrRateMatchLDPC(in_, outlen, rv, mod, nLayers):
             E = Qm * nLayers * np.floor(outlen / (Qm * nLayers * C)).astype(int)
         else:
             E = Qm * nLayers * np.ceil(outlen / (Qm * nLayers * C)).astype(int)
-        rematched = np.append(rematched, _rateMatch(in_[:, i], E, k0, Ncb, Qm))
+        rematched = np.append(rematched, _rateMatch(in_[:, [i]], E, k0, Ncb, Qm))
 
     return rematched
 
 def _rateMatch(d, E, k0, Ncb, Qm):
     # E is number of bits after rate matching
-    N_filler_bits = np.count_nonzero(d[:Ncb] == -1)
+    N_filler_bits = np.count_nonzero(d[:Ncb,0] == -1, axis=0)
 
-    d = np.tile(d, np.ceil(E / (len(d[:Ncb]) - N_filler_bits)).astype(int))
+    d = np.tile(d, (np.ceil(E / (Ncb - N_filler_bits)).astype(int), 1))
 
-    d = np.roll(d, -k0)
+    d = np.roll(d, -k0, axis=0)
 
-    e = d[d != -1][:E]
+    e = d[d[:,0] != -1,:][:E]
 
     # last bits of QAM modulates symbols are not as reliable as first ones
     # therefore map systematic bits to to first bits of each symbol
     # according to section 5.4.2.2
-    e = np.reshape(e, (Qm, int(E / Qm))).ravel(order='F')
+    e = np.reshape(e, (Qm, int(E / Qm), -1)).ravel(order='F')
     return e
 
 if __name__ == '__main__':
