@@ -303,8 +303,8 @@ def nrLDPCEncode(cbs, bgn, algo = 'sionna'):
     bm = _load_basegraph(i_ls, bgn)
 
     if algo == 'sionna':
-        pcm = _lift_basegraph(bm, Zc)
-        pcm_a, pcm_b_inv, pcm_c1, pcm_c2 = _gen_submat(bm, k_b, Zc, bgn)
+        # pcm = _lift_basegraph(bm, Zc)
+        pcm_a, pcm_b_inv, pcm_c1, pcm_c2 = _gen_submat(bm, nsys, Zc, bgn)
         # print(f'pcm = {pcm.shape[0]} x {pcm.shape[1]} matrix')
         for i in range(cbs.shape[1]):
             codedcbs[:, i] = _encode(cbs[:, i], pcm_a, pcm_b_inv, pcm_c1, pcm_c2)

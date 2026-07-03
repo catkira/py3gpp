@@ -47,7 +47,8 @@ def PDSCHDMRSSyms(cfg: nrPDSCHConfig):
     occupied_syms = np.append(occupied_syms, typeA_pos)
 
     if sym_alloc in [8, 9]:
-        occupied_syms = np.append(occupied_syms, 7)
+        if add_pos >= 1:
+            occupied_syms = np.append(occupied_syms, 7)
     elif sym_alloc in [10, 11]:
         if add_pos == 1:
             occupied_syms = np.append(occupied_syms, 9)
