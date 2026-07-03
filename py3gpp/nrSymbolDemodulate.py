@@ -31,24 +31,51 @@ def _16QAM_table():
 
 
 def nrSymbolDemodulate(input, mod, nVar=1e-10, DecisionType="soft"):
-    output = np.empty(0, "float")
-
-    for symbol in input:
-        if mod == "BPSK":
-            output = np.append(output, np.real(symbol) + np.imag(symbol))
-        elif mod == "QPSK":
-            output = np.append(output, np.real(symbol))
-            output = np.append(output, np.imag(symbol))
-        elif mod == "16QAM":
-            output = np.append(output, np.real(symbol))
-            output = np.append(output, np.imag(symbol))
-            output = np.append(output, -(np.abs(np.real(symbol)) - 2 / np.sqrt(10)))
-            output = np.append(output, -(np.abs(np.imag(symbol)) - 2 / np.sqrt(10)))
+    r_i = np.real(input)
+    r_q = np.imag(input)
+    if mod == "BPSK":
+        output = r_i + r_q
+        K = 1
+    elif mod == "QPSK":
+        output = np.zeros(len(input) * 2, dtype="float")
+        output[0::2] = r_i
+        output[1::2] = r_q
+        K = 1
+    elif mod == "16QAM":
+        d = 1 / np.sqrt(10)
+        output = np.zeros(len(input) * 4, dtype="float")
+        output[0::4] = r_i
+        output[1::4] = r_q
+        output[2::4] = 2 * d - np.abs(r_i)
+        output[3::4] = 2 * d - np.abs(r_q)
+        K = 4 * d
+    elif mod == "64QAM":
+        d = 1 / np.sqrt(42)
+        output = np.zeros(len(input) * 6, dtype="float")
+        output[0::6] = r_i
+        output[1::6] = r_q
+        output[2::6] = 4 * d - np.abs(r_i)
+        output[3::6] = 4 * d - np.abs(r_q)
+        output[4::6] = 2 * d - np.abs(4 * d - np.abs(r_i))
+        output[5::6] = 2 * d - np.abs(4 * d - np.abs(r_q))
+        K = 4 * d
+    elif mod == "256QAM":
+        d = 1 / np.sqrt(170)
+        output = np.zeros(len(input) * 8, dtype="float")
+        output[0::8] = r_i
+        output[1::8] = r_q
+        output[2::8] = 8 * d - np.abs(r_i)
+        output[3::8] = 8 * d - np.abs(r_q)
+        output[4::8] = 4 * d - np.abs(8 * d - np.abs(r_i))
+        output[5::8] = 4 * d - np.abs(8 * d - np.abs(r_q))
+        output[6::8] = 2 * d - np.abs(4 * d - np.abs(8 * d - np.abs(r_i)))
+        output[7::8] = 2 * d - np.abs(4 * d - np.abs(8 * d - np.abs(r_q)))
+        K = 4 * d
+    else:
+        raise NotImplementedError(mod)
 
     if DecisionType == "soft":
-        output /= nVar / np.exp(1)
-        if mod == "16QAM":
-            output /= 2
+        output *= K / nVar
     else:
         output = (output < 0).astype(int)
     return output
